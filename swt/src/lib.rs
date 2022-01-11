@@ -45,15 +45,20 @@ impl Contract {
 
     pub fn record_batch(&mut self, steps_batch: Vec<(AccountId, u32)>) {
         assert!(self.oracles.contains(&env::predecessor_account_id()));
+        let mut oracle_fee = 0f64;
         for (account_id, steps) in steps_batch.into_iter() {
             if !self.token.accounts.contains_key(&account_id) {
                 self.token.internal_register_account(&account_id);
             }
             let capped_steps = self.get_capped_steps(&account_id, steps);
-            let swt = self.formula(self.steps_from_tge, capped_steps);
-            self.token.internal_deposit(&account_id, swt.0 as u128);
+            let swt_to_mint = self.formula(self.steps_from_tge, capped_steps);
+            let trx_oracle_fee = swt_to_mint.0 as f64 * 0.05;
+            let minted_to_user = swt_to_mint.0 as f64 - trx_oracle_fee;
+            oracle_fee = oracle_fee + trx_oracle_fee;
+            self.token.internal_deposit(&account_id, minted_to_user as u128);
             self.steps_from_tge.0 += capped_steps as u64;
         }
+        self.token.internal_deposit(&env::predecessor_account_id(), oracle_fee as u128);
     }
 
     pub fn formula(&self, steps_from_tge: U64, steps: u32) -> U128 {
@@ -143,4 +148,17 @@ mod tests {
             }
         }
     }
+
+    // #[test]
+    // fn test_oracle_fee() {
+    //     let oracles = vec!["bob.near".parse().unwrap(), "alice.near".parse().unwrap()];
+    //     let mut contract = Contract::new(oracles);
+    //     assert_eq!(U64(0), contract.get_steps_from_tge());
+        
+    //     contract.record_batch(vec!(("alice.near".parse().unwrap(), 1_000_000_000)));
+        
+    //     // let bob = contract.token.ft_balance_of("bob.near".parse().unwrap());
+    //     // let alice = contract.token.ft_balance_of("alice.near".parse().unwrap());
+
+    // }
 }
