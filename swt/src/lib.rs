@@ -16,7 +16,9 @@ const DAY_IN_NANOS: u64 = 86_400_000_000_000;
 #[near_bindgen]
 #[derive(BorshSerialize, BorshDeserialize, PanicOnDefault)]
 pub struct Contract {
+    tge_oracle: AccountId,
     oracles: LookupSet<AccountId>,
+    is_tge_over: bool,
     token: FungibleToken,
     steps_from_tge: U64,
     daily_limits: LookupMap<AccountId, (u32, u64)>,
@@ -25,13 +27,15 @@ pub struct Contract {
 #[near_bindgen]
 impl Contract {
     #[init]
-    pub fn new(oracles_vec: Vec<AccountId>) -> Self {
+    pub fn new(tge_oracle_account: AccountId, oracles_vec: Vec<AccountId>) -> Self {
         let mut oracles_tree = LookupSet::new(b"s");
         for oracle in oracles_vec.iter() {
             env::log_str(oracle.as_str());
             oracles_tree.insert(oracle);
         }
         Self {
+            tge_oracle: tge_oracle_account,
+            is_tge_over : false,
             oracles: oracles_tree,
             token: FungibleToken::new(b"t"),
             steps_from_tge: U64::from(0),
@@ -41,6 +45,23 @@ impl Contract {
 
     pub fn get_steps_from_tge(&self) -> U64 {
         self.steps_from_tge
+    }
+
+    pub fn tge(&mut self, swc_batch: Vec<(AccountId, u32)>) {
+        assert_eq!(self.tge_oracle, env::predecessor_account_id());
+        assert_eq!(self.is_tge_over, false);
+        for (account_id, swc) in swc_batch.into_iter() {
+            if !self.token.accounts.contains_key(&account_id) {
+                self.token.internal_register_account(&account_id);
+            }
+            self.token.internal_deposit(&account_id, swc as u128);
+        }
+    }
+
+    pub fn finish_tge(&mut self) {
+        assert_eq!(self.tge_oracle, env::predecessor_account_id());
+        assert_eq!(self.is_tge_over, false);
+        self.is_tge_over = true;
     }
 
     pub fn record_batch(&mut self, steps_batch: Vec<(AccountId, u32)>) {
@@ -114,7 +135,7 @@ mod tests {
     #[test]
     fn test_formula() {
         let oracles = vec!["intmainreturn0.testnet".parse().unwrap()];
-        let contract = Contract::new(oracles);
+        let contract = Contract::new("intmainreturn0.testnet".parse().unwrap(), oracles);
         assert_eq!(U64(0), contract.get_steps_from_tge());
         
         // todo - 0 ? 
