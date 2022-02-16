@@ -44,7 +44,7 @@ impl Contract {
         assert!(self.oracles.contains(&env::predecessor_account_id()));
         let mut oracle_fee: u128 = 0;
         for (account_id, steps) in steps_batch.into_iter() {
-            let capped_steps = self.get_capped_steps(&account_id, steps);
+            let capped_steps = steps; //self.get_capped_steps(&account_id, steps);
             let sweat_to_mint: u128 = self.formula(self.steps_from_tge, capped_steps).0;
             let trx_oracle_fee: u128 = sweat_to_mint * 5 / 100;
             let minted_to_user: u128 = sweat_to_mint - trx_oracle_fee;
@@ -59,24 +59,24 @@ impl Contract {
         U128(math::formula(steps_from_tge.0 as f64, steps as f64))
     }
 
-    fn get_capped_steps(&mut self, account_id: &AccountId, steps_to_convert: u32) -> u32 {
-        let (mut sum, mut ts) = self.daily_limits.get(account_id).unwrap_or((0, 0));
-        let current_ts: u64 = env::block_timestamp();
-        const DAY_IN_NANOS: u64 = 86_400_000_000_000;
-        const DAILY_STEP_CONVERSION_LIMIT: u32 = 10_000;
-        let mut remaining_steps = 2 * DAILY_STEP_CONVERSION_LIMIT;
-        if ts == 0 || current_ts - ts >= DAY_IN_NANOS {
-            ts = current_ts;
-            sum = 0;
-        }
+    // fn get_capped_steps(&mut self, account_id: &AccountId, steps_to_convert: u32) -> u32 {
+    //     let (mut sum, mut ts) = self.daily_limits.get(account_id).unwrap_or((0, 0));
+    //     let current_ts: u64 = env::block_timestamp();
+    //     const DAY_IN_NANOS: u64 = 86_400_000_000_000;
+    //     const DAILY_STEP_CONVERSION_LIMIT: u32 = 10_000;
+    //     let mut remaining_steps = 2 * DAILY_STEP_CONVERSION_LIMIT;
+    //     if ts == 0 || current_ts - ts >= DAY_IN_NANOS {
+    //         ts = current_ts;
+    //         sum = 0;
+    //     }
 
-        // TODO can either variable cross u32 bounds? Cast will overflow
-        remaining_steps = i32::max(0, remaining_steps as i32 - sum as i32) as u32;
-        let capped_steps: u32 = u32::min(remaining_steps, steps_to_convert);
-        self.daily_limits
-            .insert(account_id, &(sum + capped_steps, ts));
-        capped_steps
-    }
+    //     // TODO can either variable cross u32 bounds? Cast will overflow
+    //     remaining_steps = i32::max(0, remaining_steps as i32 - sum as i32) as u32;
+    //     let capped_steps: u32 = u32::min(remaining_steps, steps_to_convert);
+    //     self.daily_limits
+    //         .insert(account_id, &(sum + capped_steps, ts));
+    //     capped_steps
+    // }
 }
 
 near_contract_standards::impl_fungible_token_core!(Contract, token);
