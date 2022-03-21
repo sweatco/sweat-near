@@ -55,4 +55,24 @@ near call sweat_01_testing.testnet ft_transfer '{"receiver_id":"poddubny.testnet
 near view sweat_01_testing.testnet ft_balance_of '{"account_id":"intmainreturn0.testnet"}'
 '10049999991195916062'
 
+==== clean up [wip]=====
+
+near deploy --accountId=sweat_04_testing.testnet --wasmFile=target/wasm32-unknown-unknown/release/sweat.wasm --initArgs '{"oracles_vec": ["intmainreturn0.testnet"]}'
+https://explorer.testnet.near.org/transactions/5pwZL2kZTX53sRmJBS4gWiuPGWu8J6JXScLJBpyhhVGq
+
+near call sweat_04_testing.testnet record_batch '{"steps_batch": [["intmainreturn0.testnet", 10000],["poddubny.testnet", 1000] ]}' --accountId intmainreturn0.testnet --gas=300000000000000
+https://explorer.testnet.near.org/transactions/GyZjAmoxRB1KTVNUNTVV6cvd6BHTms628oMukmbHAbFr
+
+near view sweat_04_testing.testnet ft_balance_of '{"account_id":"intmainreturn0.testnet"}'
+'20149999982387475827'
+
+near call sweat_04_testing.testnet clear_all '{}' --accountId intmainreturn0.testnet --gas=2428088695050
+https://explorer.testnet.near.org/transactions/D5MaJWoKK9HPYm76GhcXRD2C5NAsD2CSn4cfaBbbpWWb
+
+near view sweat_04_testing.testnet get_steps_from_tge '{ }'
+'0'
+
+near view sweat_04_testing.testnet ft_balance_of '{"account_id":"intmainreturn0.testnet"}'
+'20149999982387475827'
+
 ```

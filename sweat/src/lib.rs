@@ -36,6 +36,13 @@ impl Contract {
         }
     }
 
+    pub fn clear_all(&mut self) {
+        assert!(self.oracles.contains(&env::predecessor_account_id()));
+        self.token = FungibleToken::new(b"t");
+        self.steps_from_tge = U64::from(0);
+        self.daily_limits = LookupMap::new(b"l");
+    }
+
     pub fn get_steps_from_tge(&self) -> U64 {
         self.steps_from_tge
     }
