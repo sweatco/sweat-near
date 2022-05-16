@@ -39,7 +39,8 @@ impl Contract {
     pub fn mint_tge(&mut self, amount: U128, account_for: AccountId) {
         assert!(self.oracles.contains(&env::predecessor_account_id()));
         self.token.internal_register_account(&account_for);
-        internal_deposit(&mut self.token, &env::predecessor_account_id(), amount.0);
+        self.token
+            .internal_deposit(&env::predecessor_account_id(), amount.0);
     }
 
     pub fn get_steps_from_tge(&self) -> U64 {
@@ -50,15 +51,20 @@ impl Contract {
         assert!(self.oracles.contains(&env::predecessor_account_id()));
         let mut oracle_fee: u128 = 0;
         for (account_id, steps) in steps_batch.into_iter() {
+            //assert_eq!(true, steps <= constants::DAILY_STEP_CONVERSION_LIMIT);
+            if !self.token.accounts.contains_key(&account_id) {
+                // don't mint for unregistered accounts
+                continue;
+            }
             let capped_steps = self.get_capped_steps(&account_id, steps);
             let sweat_to_mint: u128 = self.formula(self.steps_from_tge, capped_steps as u32).0;
             let trx_oracle_fee: u128 = sweat_to_mint * 5 / 100;
             let minted_to_user: u128 = sweat_to_mint - trx_oracle_fee;
             oracle_fee = oracle_fee + trx_oracle_fee;
-            internal_deposit(&mut self.token, &account_id, minted_to_user);
+            mint(&mut self.token, &account_id, minted_to_user);
             self.steps_from_tge.0 += capped_steps as u64;
         }
-        internal_deposit(&mut self.token, &env::predecessor_account_id(), oracle_fee);
+        mint(&mut self.token, &env::predecessor_account_id(), oracle_fee);
     }
 
     pub fn formula(&self, steps_from_tge: U64, steps: u32) -> U128 {
@@ -68,10 +74,8 @@ impl Contract {
     fn get_capped_steps(&mut self, account_id: &AccountId, steps_to_convert: u16) -> u16 {
         let (mut sum, mut ts) = self.daily_limits.get(account_id).unwrap_or((0, 0));
         let current_ts: u64 = env::block_timestamp();
-        const DAY_IN_NANOS: u64 = 86_400_000_000_000;
-        const DAILY_STEP_CONVERSION_LIMIT: u16 = 10_000;
-        let mut remaining_steps = 2 * DAILY_STEP_CONVERSION_LIMIT;
-        if ts == 0 || current_ts - ts >= DAY_IN_NANOS {
+        let mut remaining_steps = 2 * constants::DAILY_STEP_CONVERSION_LIMIT;
+        if ts == 0 || current_ts - ts >= constants::DAY_IN_NANOS {
             ts = current_ts;
             sum = 0;
         }
@@ -84,22 +88,8 @@ impl Contract {
     }
 }
 
-near_contract_standards::impl_fungible_token_core!(Contract, token);
-near_contract_standards::impl_fungible_token_storage!(Contract, token);
-
-/// Taken from contract standards but modified to default if account isn't initialized
-/// rather than panicking:
-/// <https://github.com/near/near-sdk-rs/blob/6596dc311036fe51d94358ac8f6497ef6e5a7cfc/near-contract-standards/src/fungible_token/core_impl.rs#L105>
-fn internal_deposit(token: &mut FungibleToken, account_id: &AccountId, amount: Balance) {
-    let balance = token.accounts.get(account_id).unwrap_or_default();
-    let new_balance = balance
-        .checked_add(amount)
-        .unwrap_or_else(|| env::panic_str("Balance overflow"));
-    token.accounts.insert(account_id, &new_balance);
-    token.total_supply = token
-        .total_supply
-        .checked_add(amount)
-        .unwrap_or_else(|| env::panic_str("Total supply overflow"));
+fn mint(token: &mut FungibleToken, account_id: &AccountId, amount: Balance) {
+    token.internal_deposit(account_id, amount);
     FtMint {
         owner_id: account_id,
         amount: &U128(amount),
@@ -107,6 +97,9 @@ fn internal_deposit(token: &mut FungibleToken, account_id: &AccountId, amount: B
     }
     .emit()
 }
+
+near_contract_standards::impl_fungible_token_core!(Contract, token);
+near_contract_standards::impl_fungible_token_storage!(Contract, token);
 
 #[near_bindgen]
 impl FungibleTokenMetadataProvider for Contract {
