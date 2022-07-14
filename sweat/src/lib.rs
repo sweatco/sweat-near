@@ -1,18 +1,21 @@
+#[macro_use]
+extern crate static_assertions;
+
 use near_contract_standards::fungible_token::events::{FtBurn, FtMint};
+use near_contract_standards::fungible_token::FungibleToken;
 use near_contract_standards::fungible_token::metadata::{
     FungibleTokenMetadata, FungibleTokenMetadataProvider,
 };
-use near_contract_standards::fungible_token::FungibleToken;
+use near_sdk::{AccountId, Balance, BorshStorageKey, env, near_bindgen, PanicOnDefault, PromiseOrValue};
+use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::UnorderedSet;
+use near_sdk::collections::{LookupMap, UnorderedSet};
 use near_sdk::json_types::{U128, U64};
 use near_sdk::require;
+
 mod math;
 
-use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, PromiseOrValue};
-
-#[macro_use]
-extern crate static_assertions;
+const NANO_SECONDS_IN_DAY: f64 = 8.64e+13;
 
 #[near_bindgen]
 #[derive(BorshSerialize, BorshDeserialize, PanicOnDefault)]
@@ -20,6 +23,29 @@ pub struct Contract {
     oracles: UnorderedSet<AccountId>,
     token: FungibleToken,
     steps_since_tge: U64,
+    pending_balances: LookupMap<AccountId, DeferredReward>,
+}
+
+#[derive(BorshSerialize, BorshStorageKey)]
+enum StorageKey {
+    PendingBalance
+}
+
+/// Reward that user receives for their steps
+struct Reward {
+    /// Total amount of the reward
+    total: u128,
+    /// The amount of Sweat that user receives directly
+    amount: u128,
+    /// The commission that the Oracle takes for a transaction
+    oracle_fee: u128,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct DeferredReward {
+    timestamp: U64,
+    amount: U128,
 }
 
 #[near_bindgen]
@@ -30,6 +56,7 @@ impl Contract {
             oracles: UnorderedSet::new(b"s"),
             token: FungibleToken::new(b"t"),
             steps_since_tge: U64::from(0),
+            pending_balances: LookupMap::new(StorageKey::PendingBalance),
         }
     }
     pub fn add_oracle(&mut self, account_id: &AccountId) {
@@ -68,7 +95,7 @@ impl Contract {
             amount: &amount,
             memo: None,
         }
-        .emit()
+            .emit()
     }
 
     pub fn tge_mint_batch(&mut self, batch: Vec<(AccountId, U128)>) {
@@ -78,7 +105,7 @@ impl Contract {
         );
         let mut events = Vec::with_capacity(batch.len());
         for i in 0..batch.len() {
-            internal_deposit(&mut self.token, &batch[i].0, batch[i].1 .0);
+            internal_deposit(&mut self.token, &batch[i].0, batch[i].1.0);
             events.push(FtMint {
                 owner_id: &batch[i].0,
                 amount: &batch[i].1,
@@ -97,8 +124,7 @@ impl Contract {
             owner_id: &env::predecessor_account_id(),
             amount: amount,
             memo: None,
-        }
-        .emit()
+        }.emit()
     }
 
     pub fn get_steps_since_tge(&self) -> U64 {
@@ -146,6 +172,65 @@ impl Contract {
     pub fn formula(&self, steps_since_tge: U64, steps: u16) -> U128 {
         U128(math::formula(steps_since_tge.0 as f64, steps as f64))
     }
+
+    /// Mints Sweat with Inactivity Fee support.
+    /// If user has any amount of Sweat on their deferred balance, and these tokens were deposited
+    /// since last day, transfer these tokens to the User's balance. Burn it otherwise.
+    /// Then it mints tokens and deposits them on User's deferred balance.
+    pub fn mint_with_fee(&mut self, account_id: AccountId, steps: u16) {
+        let deferred_reward = self.deferred_balance(&account_id);
+        if let Some(x) = deferred_reward {
+            let current_timestamp = env::block_timestamp();
+            let is_since_last_day = (((current_timestamp - x.timestamp.0) as f64) * NANO_SECONDS_IN_DAY) < 2.0;
+            if is_since_last_day {
+                let account_id_copy = AccountId::new_unchecked(account_id.to_string());
+                self.ft_transfer(account_id_copy, x.amount, None);
+                self.pending_balances.remove(&account_id);
+            } else {
+                self.burn(&x.amount);
+            }
+        }
+
+        self.premint(&account_id, steps);
+    }
+
+    /// Deposits tokens to the User's deferred account.
+    /// First it mints Sweat and deposits it to the Contract account.
+    /// Then it reserves corresponding amount of Sweat for the User.
+    /// The User receives these tokens later if they don't meet Inactivity Fee conditions.
+    pub fn premint(&mut self, account_id: &AccountId, steps: u16) {
+        let reward = self.calculate_reward(steps);
+        internal_deposit(
+            &mut self.token,
+            &env::current_account_id(),
+            reward.total,
+        );
+        self.defer(account_id, reward.amount);
+    }
+
+    pub fn deferred_balance(&mut self, account_id: &AccountId) -> Option<DeferredReward> {
+        self.pending_balances.get(account_id)
+    }
+
+    fn defer(&mut self, account_id: &AccountId, amount: u128) {
+        let deferred_reward = DeferredReward {
+            timestamp: U64(env::block_timestamp()),
+            amount: U128(amount),
+        };
+        self.pending_balances.insert(account_id, &deferred_reward);
+    }
+
+    fn calculate_reward(&mut self, steps: u16) -> Reward {
+        let sweat_to_mint: u128 = self.formula(self.steps_since_tge, steps).0;
+        let trx_oracle_fee: u128 = sweat_to_mint * 5 / 100;
+        let minted_to_user: u128 = sweat_to_mint - trx_oracle_fee;
+
+        Reward {
+            total: sweat_to_mint,
+            amount: minted_to_user,
+            oracle_fee: trx_oracle_fee,
+        }
+    }
 }
 
 near_contract_standards::impl_fungible_token_core!(Contract, token);
@@ -185,20 +270,25 @@ impl FungibleTokenMetadataProvider for Contract {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use near_sdk::{AccountId, testing_env};
     use near_sdk::test_utils::VMContextBuilder;
-    use near_sdk::{testing_env, AccountId};
+
+    use super::*;
+
     const EPS: f64 = 0.00001;
 
     fn sweat_the_token() -> AccountId {
         AccountId::new_unchecked("sweat_the_token".to_string())
     }
+
     fn sweat_oracle() -> AccountId {
         AccountId::new_unchecked("sweat_the_oracle".to_string())
     }
+
     fn user1() -> AccountId {
         AccountId::new_unchecked("sweat_user1".to_string())
     }
+
     fn user2() -> AccountId {
         AccountId::new_unchecked("sweat_user2".to_string())
     }
