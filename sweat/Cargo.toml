@@ -9,6 +9,6 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-near-sdk = "4.0.0-pre.7"
-near-contract-standards = "4.0.0-pre.7"
 static_assertions = "1.1.0"
+near-sdk = {git = "https://github.com/sweatco/near-sdk-rs", rev = "0d3521a623b37da3e369456a38686137545d3f36"}
+near-contract-standards = {git = "https://github.com/sweatco/near-sdk-rs", rev = "0d3521a623b37da3e369456a38686137545d3f36"}
