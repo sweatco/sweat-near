@@ -729,7 +729,7 @@ name = "examples"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "near-sdk",
+ "near-sdk 4.0.0 (git+https://github.com/sweatco/near-sdk-rs?rev=3cce3a38eba94ee13653cf2de46d1c667b320d38)",
  "near-units",
  "serde_json",
  "tokio",
@@ -1381,9 +1381,9 @@ dependencies = [
 [[package]]
 name = "near-contract-standards"
 version = "4.0.0"
-source = "git+https://github.com/sweatco/near-sdk-rs?rev=3cce3a38eba94ee13653cf2de46d1c667b320d38#3cce3a38eba94ee13653cf2de46d1c667b320d38"
+source = "git+https://github.com/sweatco/near-sdk-rs?rev=6462045270eeae2433f8ad114ddf8678adb31f1a#6462045270eeae2433f8ad114ddf8678adb31f1a"
 dependencies = [
- "near-sdk",
+ "near-sdk 4.0.0 (git+https://github.com/sweatco/near-sdk-rs?rev=6462045270eeae2433f8ad114ddf8678adb31f1a)",
  "serde",
  "serde_json",
 ]
@@ -1669,8 +1669,27 @@ dependencies = [
  "near-crypto 0.13.0",
  "near-primitives 0.13.0",
  "near-primitives-core 0.13.0",
- "near-sdk-macros",
- "near-sys",
+ "near-sdk-macros 4.0.0 (git+https://github.com/sweatco/near-sdk-rs?rev=3cce3a38eba94ee13653cf2de46d1c667b320d38)",
+ "near-sys 0.2.0 (git+https://github.com/sweatco/near-sdk-rs?rev=3cce3a38eba94ee13653cf2de46d1c667b320d38)",
+ "near-vm-logic",
+ "serde",
+ "serde_json",
+ "wee_alloc",
+]
+
+[[package]]
+name = "near-sdk"
+version = "4.0.0"
+source = "git+https://github.com/sweatco/near-sdk-rs?rev=6462045270eeae2433f8ad114ddf8678adb31f1a#6462045270eeae2433f8ad114ddf8678adb31f1a"
+dependencies = [
+ "base64 0.13.0",
+ "borsh",
+ "bs58",
+ "near-crypto 0.13.0",
+ "near-primitives 0.13.0",
+ "near-primitives-core 0.13.0",
+ "near-sdk-macros 4.0.0 (git+https://github.com/sweatco/near-sdk-rs?rev=6462045270eeae2433f8ad114ddf8678adb31f1a)",
+ "near-sys 0.2.0 (git+https://github.com/sweatco/near-sdk-rs?rev=6462045270eeae2433f8ad114ddf8678adb31f1a)",
  "near-vm-logic",
  "serde",
  "serde_json",
@@ -1689,9 +1708,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "near-sdk-macros"
+version = "4.0.0"
+source = "git+https://github.com/sweatco/near-sdk-rs?rev=6462045270eeae2433f8ad114ddf8678adb31f1a#6462045270eeae2433f8ad114ddf8678adb31f1a"
+dependencies = [
+ "Inflector",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "near-sys"
 version = "0.2.0"
 source = "git+https://github.com/sweatco/near-sdk-rs?rev=3cce3a38eba94ee13653cf2de46d1c667b320d38#3cce3a38eba94ee13653cf2de46d1c667b320d38"
+
+[[package]]
+name = "near-sys"
+version = "0.2.0"
+source = "git+https://github.com/sweatco/near-sdk-rs?rev=6462045270eeae2433f8ad114ddf8678adb31f1a#6462045270eeae2433f8ad114ddf8678adb31f1a"
 
 [[package]]
 name = "near-units"
@@ -2653,7 +2688,7 @@ name = "sweat"
 version = "0.1.0"
 dependencies = [
  "near-contract-standards",
- "near-sdk",
+ "near-sdk 4.0.0 (git+https://github.com/sweatco/near-sdk-rs?rev=6462045270eeae2433f8ad114ddf8678adb31f1a)",
  "static_assertions",
 ]
 
