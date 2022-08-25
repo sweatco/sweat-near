@@ -15,7 +15,7 @@ tokio = { version = "1.10.0", features = ["full"] }
 # tracing = "0.1"
 # tracing-subscriber = { version = "0.3.5", features = ["env-filter"] }
 workspaces = "0.2.0"
-near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "b63b449236d57d8bfb8f64ba277f848a74fddcb1" }
+near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "3cce3a38eba94ee13653cf2de46d1c667b320d38" }
 
 [[example]]
 name = "mint"
