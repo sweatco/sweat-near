@@ -10,5 +10,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 static_assertions = "1.1.0"
-near-sdk = {git = "https://github.com/sweatco/near-sdk-rs", rev = "0d3521a623b37da3e369456a38686137545d3f36"}
-near-contract-standards = {git = "https://github.com/sweatco/near-sdk-rs", rev = "0d3521a623b37da3e369456a38686137545d3f36"}
+near-sdk = {git = "https://github.com/sweatco/near-sdk-rs", rev = "b63b449236d57d8bfb8f64ba277f848a74fddcb1"}
+near-contract-standards = {git = "https://github.com/sweatco/near-sdk-rs", rev = "b63b449236d57d8bfb8f64ba277f848a74fddcb1"}
