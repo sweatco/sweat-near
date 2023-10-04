@@ -14,7 +14,7 @@ serde_json = { version = "1.0", features = ["arbitrary_precision"] }
 tokio = { version = "1.10.0", features = ["full"] }
 # tracing = "0.1"
 # tracing-subscriber = { version = "0.3.5", features = ["env-filter"] }
-workspaces = "0.2.0"
+workspaces = "0.7.0"
 near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "af6ba3cb75e0bbfc26e346e61aa3a0d1d7f5ac7b" }
 
 [[example]]
@@ -28,3 +28,7 @@ path = "src/transfer.rs"
 [[example]]
 name = "formula"
 path = "src/formula.rs"
+
+[[example]]
+name = "defer"
+path = "src/defer.rs"
