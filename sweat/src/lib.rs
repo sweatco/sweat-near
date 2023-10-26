@@ -9,6 +9,7 @@ use near_sdk::collections::UnorderedSet;
 use near_sdk::json_types::{U128, U64};
 use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, PromiseOrValue};
 use near_sdk::{ext_contract, is_promise_success, require};
+use sweat_model::SweatApi;
 
 mod defer;
 mod math;
@@ -22,16 +23,16 @@ pub struct Contract {
 }
 
 #[near_bindgen]
-impl Contract {
+impl SweatApi for Contract {
     #[init]
-    pub fn new(postfix: Option<String>) -> Self {
+    fn new(postfix: Option<String>) -> Self {
         Self {
             oracles: UnorderedSet::new(b"s"),
             token: FungibleToken::new(b"t", postfix),
             steps_since_tge: U64::from(0),
         }
     }
-    pub fn add_oracle(&mut self, account_id: &AccountId) {
+    fn add_oracle(&mut self, account_id: &AccountId) {
         require!(
             env::predecessor_account_id() == env::current_account_id(),
             "Unauthorized access! Only token owner can add oracles!"
@@ -40,7 +41,7 @@ impl Contract {
         env::log_str(&format!("Oracle {} was added", account_id));
     }
 
-    pub fn remove_oracle(&mut self, account_id: &AccountId) {
+    fn remove_oracle(&mut self, account_id: &AccountId) {
         require!(
             env::predecessor_account_id() == env::current_account_id(),
             "Unauthorized access! Only token owner can remove oracles!"
@@ -49,11 +50,11 @@ impl Contract {
         env::log_str(&format!("Oracle {} was removed", account_id));
     }
 
-    pub fn get_oracles(&self) -> Vec<AccountId> {
+    fn get_oracles(&self) -> Vec<AccountId> {
         self.oracles.to_vec()
     }
 
-    pub fn tge_mint(&mut self, account_id: &AccountId, amount: U128) {
+    fn tge_mint(&mut self, account_id: &AccountId, amount: U128) {
         require!(
             env::predecessor_account_id() == env::current_account_id(),
             "Unauthorized access! Only token owner can do TGE!"
@@ -67,7 +68,7 @@ impl Contract {
         .emit()
     }
 
-    pub fn tge_mint_batch(&mut self, batch: Vec<(AccountId, U128)>) {
+    fn tge_mint_batch(&mut self, batch: Vec<(AccountId, U128)>) {
         require!(
             env::predecessor_account_id() == env::current_account_id(),
             "Unauthorized access! Only token owner can do TGE!"
@@ -86,7 +87,7 @@ impl Contract {
         }
     }
 
-    pub fn burn(&mut self, amount: &U128) {
+    fn burn(&mut self, amount: &U128) {
         self.token.internal_withdraw(&env::predecessor_account_id(), amount.0);
         FtBurn {
             amount,
@@ -96,11 +97,11 @@ impl Contract {
         .emit()
     }
 
-    pub fn get_steps_since_tge(&self) -> U64 {
+    fn get_steps_since_tge(&self) -> U64 {
         self.steps_since_tge
     }
 
-    pub fn record_batch(&mut self, steps_batch: Vec<(AccountId, u16)>) {
+    fn record_batch(&mut self, steps_batch: Vec<(AccountId, u16)>) {
         require!(
             self.oracles.contains(&env::predecessor_account_id()),
             "Unauthorized access! Only oracle can call that!"
@@ -132,7 +133,7 @@ impl Contract {
         FtMint::emit_many(events.as_slice());
     }
 
-    pub fn formula(&self, steps_since_tge: U64, steps: u16) -> U128 {
+    fn formula(&self, steps_since_tge: U64, steps: u16) -> U128 {
         U128(math::formula(steps_since_tge.0 as f64, steps as f64))
     }
 }
@@ -214,6 +215,7 @@ mod tests {
     use near_sdk::json_types::{U128, U64};
     use near_sdk::test_utils::VMContextBuilder;
     use near_sdk::{testing_env, AccountId};
+    use sweat_model::SweatApi;
 
     use crate::Contract;
 

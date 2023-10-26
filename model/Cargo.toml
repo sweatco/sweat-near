@@ -1,0 +1,10 @@
+[package]
+name = "sweat_model"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+near-sdk = { workspace = true }
+async-trait = { workspace = true }
+integration-trait = { workspace = true }
