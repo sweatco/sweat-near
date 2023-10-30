@@ -2740,6 +2740,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "integration-trait",
+ "near-contract-standards",
  "near-sdk",
 ]
 
