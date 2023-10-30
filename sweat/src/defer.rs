@@ -1,5 +1,4 @@
-use near_sdk::serde_json::json;
-use near_sdk::{Gas, Promise};
+use near_sdk::{serde_json::json, Gas, Promise};
 
 use crate::*;
 

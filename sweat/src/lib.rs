@@ -1,14 +1,18 @@
 #[macro_use]
 extern crate static_assertions;
 
-use near_contract_standards::fungible_token::events::{FtBurn, FtMint};
-use near_contract_standards::fungible_token::metadata::{FungibleTokenMetadata, FungibleTokenMetadataProvider};
-use near_contract_standards::fungible_token::FungibleToken;
-use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::UnorderedSet;
-use near_sdk::json_types::{U128, U64};
-use near_sdk::{env, near_bindgen, AccountId, Balance, PanicOnDefault, PromiseOrValue};
-use near_sdk::{ext_contract, is_promise_success, require};
+use near_contract_standards::fungible_token::{
+    events::{FtBurn, FtMint},
+    metadata::{FungibleTokenMetadata, FungibleTokenMetadataProvider},
+    FungibleToken,
+};
+use near_sdk::{
+    borsh::{self, BorshDeserialize, BorshSerialize},
+    collections::UnorderedSet,
+    env, ext_contract, is_promise_success,
+    json_types::{U128, U64},
+    near_bindgen, require, AccountId, Balance, PanicOnDefault, PromiseOrValue,
+};
 use sweat_model::SweatApi;
 
 mod defer;
@@ -212,9 +216,11 @@ impl FungibleTokenMetadataProvider for Contract {
 #[cfg(test)]
 mod tests {
     use near_contract_standards::fungible_token::core::FungibleTokenCore;
-    use near_sdk::json_types::{U128, U64};
-    use near_sdk::test_utils::VMContextBuilder;
-    use near_sdk::{testing_env, AccountId};
+    use near_sdk::{
+        json_types::{U128, U64},
+        test_utils::VMContextBuilder,
+        testing_env, AccountId,
+    };
     use sweat_model::SweatApi;
 
     use crate::Contract;

@@ -9,7 +9,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-sweat_model = { workspace = true }
+sweat-model = { workspace = true }
 
 static_assertions = "1.1.0"
 near-sdk = { workspace = true }

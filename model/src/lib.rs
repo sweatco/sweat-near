@@ -1,6 +1,8 @@
 use integration_trait::make_integration_version;
-use near_sdk::{AccountId, PromiseOrValue};
-use near_sdk::json_types::{U128, U64};
+use near_sdk::{
+    json_types::{U128, U64},
+    AccountId, PromiseOrValue,
+};
 
 #[make_integration_version]
 pub trait SweatApi {

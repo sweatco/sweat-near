@@ -1,5 +1,5 @@
 [package]
-name = "sweat_model"
+name = "sweat-model"
 version = "0.1.0"
 edition = "2021"
 

@@ -1,6 +1,5 @@
-use serde_json::json;
-
 use near_sdk::json_types::{U128, U64};
+use serde_json::json;
 use workspaces::prelude::*;
 
 const SWEAT_WASM_FILEPATH: &str = "./res/sweat.wasm";
@@ -21,10 +20,7 @@ async fn main() -> anyhow::Result<()> {
     let result = contract.call("new").args_json(json!({})).transact().await?;
     println!("✅ Deploy: {:#?}", result);
 
-    let result = worker
-        .view(contract.id(), "get_steps_since_tge")
-        .await?
-        .json::<U64>()?;
+    let result = worker.view(contract.id(), "get_steps_since_tge").await?.json::<U64>()?;
     assert_eq!(result, U64(0));
 
     println!("🏃Run formula");

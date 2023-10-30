@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "sweat",
-    "model",
+    "sweat",
     "examples"
 ]
 
@@ -10,12 +10,12 @@ members = [
 anyhow = "1.0.75"
 async-trait = "0.1.74"
 
-near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "af6ba3cb75e0bbfc26e346e61aa3a0d1d7f5ac7b" }
-near-contract-standards = { git = "https://github.com/sweatco/near-sdk-rs", rev = "af6ba3cb75e0bbfc26e346e61aa3a0d1d7f5ac7b" }
+near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "8c48b26cc48d969c1e5f3162141fe9c824fccecd" }
+near-contract-standards = { git = "https://github.com/sweatco/near-sdk-rs", rev = "8c48b26cc48d969c1e5f3162141fe9c824fccecd" }
 integration-trait = { git = "https://github.com/sweatco/integration-trait.git", rev = "83a69f7ba4acab9405bf935f7dfc70f2f5279c40" }
 integration-utils = { git = "https://github.com/sweatco/integration-utils.git", rev = "ba3875776505f5799881c97b24bb92aedf656af9" }
 
-sweat_model = { path = "model" }
+sweat-model = { path = "model" }
 
 
 [profile.release]
