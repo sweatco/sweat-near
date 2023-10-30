@@ -3,10 +3,7 @@ use near_contract_standards::storage_management::{StorageBalance, StorageBalance
 use near_sdk::{
     json_types::{U128, U64},
     AccountId, PromiseOrValue,
-
-
 };
-
 
 #[make_integration_version]
 pub trait SweatApi {
@@ -20,6 +17,11 @@ pub trait SweatApi {
     fn get_steps_since_tge(&self) -> U64;
     fn record_batch(&mut self, steps_batch: Vec<(AccountId, u16)>);
     fn formula(&self, steps_since_tge: U64, steps: u16) -> U128;
+}
+
+#[make_integration_version]
+pub trait SweatDefer {
+    fn defer_batch(&mut self, steps_batch: Vec<(AccountId, u16)>, holding_account_id: AccountId) -> PromiseOrValue<()>;
 }
 
 /// Copy of near_sdk trait to use in integration tests
@@ -42,11 +44,7 @@ pub trait FungibleTokenCore {
 pub trait StorageManagement {
     // if `registration_only=true` MUST refund above the minimum balance if the account didn't exist and
     //     refund full deposit if the account exists.
-    fn storage_deposit(
-        &mut self,
-        account_id: Option<AccountId>,
-        registration_only: Option<bool>,
-    ) -> StorageBalance;
+    fn storage_deposit(&mut self, account_id: Option<AccountId>, registration_only: Option<bool>) -> StorageBalance;
 
     /// Withdraw specified amount of available Ⓝ for predecessor account.
     ///
