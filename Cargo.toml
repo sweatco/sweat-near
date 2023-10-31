@@ -15,7 +15,7 @@ async-trait = "0.1.74"
 near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "8c48b26cc48d969c1e5f3162141fe9c824fccecd" }
 near-contract-standards = { git = "https://github.com/sweatco/near-sdk-rs", rev = "8c48b26cc48d969c1e5f3162141fe9c824fccecd" }
 integration-trait = { git = "https://github.com/sweatco/integration-trait.git", rev = "83a69f7ba4acab9405bf935f7dfc70f2f5279c40" }
-integration-utils = { git = "https://github.com/sweatco/integration-utils.git", rev = "1a5c5ea841bc23751d270fcd3528b7d5403185e2" }
+integration-utils = { git = "https://github.com/sweatco/integration-utils.git", rev = "f7209c08dddb6b88bac3d7346ae2510bdf78e547" }
 
 sweat-model = { path = "model" }
 

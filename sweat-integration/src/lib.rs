@@ -6,8 +6,7 @@ use near_sdk::{
     serde_json::json,
     AccountId,
 };
-use near_units::parse_near;
-use near_workspaces::{Account, Contract};
+use near_workspaces::{types::NearToken, Account, Contract};
 use sweat_model::{
     FungibleTokenCoreIntegration, StorageManagementIntegration, SweatApiIntegration, SweatDeferIntegration,
 };
@@ -49,7 +48,7 @@ impl FungibleTokenCoreIntegration for SweatFt<'_> {
             .call(self.contract.id(), "ft_transfer_call")
             .args_json(args)
             .max_gas()
-            .deposit(parse_near!("1 yocto"))
+            .deposit(NearToken::from_yoctonear(1))
             .transact()
             .await?
             .into_result()?;
@@ -89,7 +88,7 @@ impl StorageManagementIntegration for SweatFt<'_> {
             .contract
             .call("storage_deposit")
             .args_json(args)
-            .deposit(parse_near!("0.00235 N"))
+            .deposit(NearToken::from_millinear(3))
             .transact()
             .await?
             .into_result()?;
