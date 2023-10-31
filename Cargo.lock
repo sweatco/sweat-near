@@ -2033,7 +2033,7 @@ dependencies = [
 [[package]]
 name = "integration-utils"
 version = "0.1.0"
-source = "git+https://github.com/sweatco/integration-utils.git?rev=f7209c08dddb6b88bac3d7346ae2510bdf78e547#f7209c08dddb6b88bac3d7346ae2510bdf78e547"
+source = "git+https://github.com/sweatco/integration-utils.git?rev=0b3c2faf0db31cdb3481be4d35dbb48b62a98618#0b3c2faf0db31cdb3481be4d35dbb48b62a98618"
 dependencies = [
  "anyhow",
  "async-trait",
