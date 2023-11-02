@@ -222,7 +222,7 @@ impl<'a> IntegrationContract<'a> for SweatFt<'a> {
         }
     }
 
-    fn with_user(mut self, account: &Account) -> Self {
+    fn with_user(&mut self, account: &Account) -> &mut Self {
         self.account = account.clone().into();
         self
     }
