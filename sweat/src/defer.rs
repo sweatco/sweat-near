@@ -12,20 +12,36 @@ impl Contract {
         );
 
         let mut accounts_tokens: Vec<(AccountId, U128)> = Vec::new();
-        let mut total_to_mint: u128 = 0;
-        let mut total_fee: u128 = 0;
+        let mut total_effective: U128 = U128(0);
+        let mut total_fee: U128 = U128(0);
 
         for (account_id, step_count) in steps_batch {
             let (amount, fee) = self.calculate_tokens_amount(step_count);
             self.steps_since_tge.0 += step_count as u64;
 
             accounts_tokens.push((account_id, U128(amount)));
-            total_to_mint += amount;
-            total_fee += fee;
+            total_effective.0 += amount;
+            total_fee.0 += fee;
         }
 
-        internal_deposit(&mut self.token, &env::predecessor_account_id(), total_fee);
-        internal_deposit(&mut self.token, &holding_account_id, total_to_mint);
+        let mut events: Vec<FtMint> = Vec::with_capacity(2);
+
+        let oracle_account_id = env::predecessor_account_id();
+        internal_deposit(&mut self.token, &oracle_account_id, total_fee.0);
+        events.push(FtMint {
+            owner_id: &oracle_account_id,
+            amount: &total_fee,
+            memo: None,
+        });
+
+        internal_deposit(&mut self.token, &holding_account_id, total_effective.0);
+        events.push(FtMint {
+            owner_id: &holding_account_id,
+            amount: &total_effective,
+            memo: None,
+        });
+
+        FtMint::emit_many(&events);
 
         let hold_arguments = json!({
             "amounts": accounts_tokens,
@@ -41,20 +57,37 @@ impl Contract {
             .then(
                 ext_ft_transfer_callback::ext(env::current_account_id())
                     .with_static_gas(Gas(5 * 1_000_000_000_000))
-                    .on_transfer(holding_account_id, U128(total_to_mint)),
+                    .on_transfer(holding_account_id, total_effective, total_fee),
             )
     }
 }
 
 #[ext_contract(ext_ft_transfer_callback)]
 pub trait FungibleTokenTransferCallback {
-    fn on_transfer(&mut self, receiver_id: AccountId, amount: U128);
+    fn on_transfer(&mut self, receiver_id: AccountId, amount: U128, fee: U128);
 }
 
 impl FungibleTokenTransferCallback for Contract {
-    fn on_transfer(&mut self, receiver_id: AccountId, amount: U128) {
+    fn on_transfer(&mut self, receiver_id: AccountId, amount: U128, fee: U128) {
         if !is_promise_success() {
+            let mut events: Vec<FtBurn> = Vec::with_capacity(2);
+
             rollback_internal_deposit(&mut self.token, &receiver_id, amount.0);
+            events.push(FtBurn {
+                owner_id: &receiver_id,
+                amount: &amount,
+                memo: None,
+            });
+
+            let oracle_account_id = env::predecessor_account_id();
+            rollback_internal_deposit(&mut self.token, &oracle_account_id, fee.0);
+            events.push(FtBurn {
+                owner_id: &oracle_account_id,
+                amount: &fee,
+                memo: None,
+            });
+
+            FtBurn::emit_many(&events);
         }
     }
 }
