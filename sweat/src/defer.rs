@@ -1,11 +1,11 @@
-use near_sdk::serde_json::json;
-use near_sdk::{Gas, Promise};
+use near_sdk::{serde_json::json, Gas, Promise};
+use sweat_model::SweatDefer;
 
 use crate::*;
 
 #[near_bindgen]
-impl Contract {
-    pub fn defer_batch(&mut self, steps_batch: Vec<(AccountId, u16)>, holding_account_id: AccountId) -> Promise {
+impl SweatDefer for Contract {
+    fn defer_batch(&mut self, steps_batch: Vec<(AccountId, u16)>, holding_account_id: AccountId) -> PromiseOrValue<()> {
         require!(
             self.oracles.contains(&env::predecessor_account_id()),
             "Unauthorized access! Only oracle can call that!"
@@ -59,6 +59,7 @@ impl Contract {
                     .with_static_gas(Gas(5 * 1_000_000_000_000))
                     .on_transfer(holding_account_id, total_effective, total_fee),
             )
+            .into()
     }
 }
 
