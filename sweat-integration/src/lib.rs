@@ -123,7 +123,7 @@ impl StorageManagementIntegration for SweatFt<'_> {
 
 #[async_trait]
 impl SweatDeferIntegration for SweatFt<'_> {
-    async fn defer_batch(&mut self, steps_batch: Vec<(AccountId, u16)>, holding_account_id: AccountId) -> Result<()> {
+    async fn defer_batch(&mut self, steps_batch: Vec<(AccountId, u32)>, holding_account_id: AccountId) -> Result<()> {
         self.call_user(
             "defer_batch",
             json!({
@@ -184,15 +184,15 @@ impl SweatApiIntegration for SweatFt<'_> {
         todo!()
     }
 
-    async fn get_steps_since_tge(&self) -> anyhow::Result<U64> {
+    async fn get_steps_since_tge(&self) -> Result<U64> {
+        self.call_contract("get_steps_since_tge", ()).await
+    }
+
+    async fn record_batch(&mut self, _steps_batch: Vec<(AccountId, u32)>) -> anyhow::Result<()> {
         todo!()
     }
 
-    async fn record_batch(&mut self, _steps_batch: Vec<(AccountId, u16)>) -> anyhow::Result<()> {
-        todo!()
-    }
-
-    async fn formula(&self, steps_since_tge: U64, steps: u16) -> anyhow::Result<U128> {
+    async fn formula(&self, steps_since_tge: U64, steps: u32) -> anyhow::Result<U128> {
         self.call_contract(
             "formula",
             json!({
@@ -205,7 +205,7 @@ impl SweatApiIntegration for SweatFt<'_> {
 }
 
 impl SweatFt<'_> {
-    pub async fn formula_detailed(&self, steps_since_tge: U64, steps: u16) -> anyhow::Result<(U128, U128, U128)> {
+    pub async fn formula_detailed(&self, steps_since_tge: U64, steps: u32) -> anyhow::Result<(U128, U128, U128)> {
         let token_amount = self.formula(steps_since_tge, steps).await?.0;
         let fee = token_amount * 5 / 100;
         let effective_amount = token_amount - fee;

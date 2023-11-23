@@ -15,13 +15,13 @@ pub trait SweatApi {
     fn tge_mint_batch(&mut self, batch: Vec<(AccountId, U128)>);
     fn burn(&mut self, amount: &U128);
     fn get_steps_since_tge(&self) -> U64;
-    fn record_batch(&mut self, steps_batch: Vec<(AccountId, u16)>);
-    fn formula(&self, steps_since_tge: U64, steps: u16) -> U128;
+    fn record_batch(&mut self, steps_batch: Vec<(AccountId, u32)>);
+    fn formula(&self, steps_since_tge: U64, steps: u32) -> U128;
 }
 
 #[make_integration_version]
 pub trait SweatDefer {
-    fn defer_batch(&mut self, steps_batch: Vec<(AccountId, u16)>, holding_account_id: AccountId) -> PromiseOrValue<()>;
+    fn defer_batch(&mut self, steps_batch: Vec<(AccountId, u32)>, holding_account_id: AccountId) -> PromiseOrValue<()>;
 }
 
 /// Copy of near_sdk trait to use in integration tests

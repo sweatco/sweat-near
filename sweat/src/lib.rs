@@ -105,7 +105,7 @@ impl SweatApi for Contract {
         self.steps_since_tge
     }
 
-    fn record_batch(&mut self, steps_batch: Vec<(AccountId, u16)>) {
+    fn record_batch(&mut self, steps_batch: Vec<(AccountId, u32)>) {
         require!(
             self.oracles.contains(&env::predecessor_account_id()),
             "Unauthorized access! Only oracle can call that!"
@@ -137,13 +137,13 @@ impl SweatApi for Contract {
         FtMint::emit_many(events.as_slice());
     }
 
-    fn formula(&self, steps_since_tge: U64, steps: u16) -> U128 {
+    fn formula(&self, steps_since_tge: U64, steps: u32) -> U128 {
         U128(math::formula(steps_since_tge.0 as f64, steps as f64))
     }
 }
 
 impl Contract {
-    pub(crate) fn calculate_tokens_amount(&self, steps: u16) -> (u128, u128) {
+    pub(crate) fn calculate_tokens_amount(&self, steps: u32) -> (u128, u128) {
         let sweat_to_mint: u128 = self.formula(self.steps_since_tge, steps).0;
         let trx_oracle_fee: u128 = sweat_to_mint * 5 / 100;
         let minted_to_user: u128 = sweat_to_mint - trx_oracle_fee;

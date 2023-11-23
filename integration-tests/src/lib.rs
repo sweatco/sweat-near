@@ -5,6 +5,7 @@ use sweat_model::{FungibleTokenCoreIntegration, SweatApiIntegration, SweatDeferI
 
 use crate::prepare::{prepare_contract, IntegrationContext};
 
+mod formula;
 mod interface;
 mod prepare;
 
