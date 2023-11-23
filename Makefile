@@ -6,11 +6,14 @@ install: ##@Miscellaneous Install dependencies
 	@npm i near-cli
 	@cargo build
 
-build: ##@Build Build the contract locally.
+build: ##@Build the contract locally.
 	./scripts/build.sh
 
-build-in-docker: ##@Build Build reproducible artifact in Docker.
+build-in-docker: ##@Build reproducible artifact in Docker.
 	./scripts/build-in-docker.sh
+
+build-stub: ##@Build stub for holding contract.
+	./scripts/build-stub.sh
 
 dock: build-in-docker ##@Build Shorthand for `build-in-docker`
 

@@ -5,6 +5,7 @@ use sweat_model::{FungibleTokenCoreIntegration, SweatApiIntegration, SweatDeferI
 
 use crate::prepare::{prepare_contract, IntegrationContext};
 
+mod defer;
 mod formula;
 mod interface;
 mod mint;
@@ -16,7 +17,7 @@ async fn happy_flow() -> anyhow::Result<()> {
     let mut context = prepare_contract().await?;
 
     let alice = context.alice().await?;
-    let manager = context.manager().await?;
+    let oracle = context.oracle().await?;
 
     assert_eq!(
         99999995378125008,
@@ -35,8 +36,8 @@ async fn happy_flow() -> anyhow::Result<()> {
 
     context
         .ft_contract()
-        .with_user(&manager)
-        .defer_batch(vec![(alice.to_near(), 1000)], manager.to_near())
+        .with_user(&oracle)
+        .defer_batch(vec![(alice.to_near(), 1000)], oracle.to_near())
         .await?;
 
     Ok(())

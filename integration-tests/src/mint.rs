@@ -1,90 +1,38 @@
-#![cfg(test)]
-
+use integration_utils::{integration_contract::IntegrationContract, misc::ToNear};
 use near_sdk::json_types::{U128, U64};
-use serde_json::json;
+use sweat_model::{FungibleTokenCoreIntegration, SweatApiIntegration};
 
 use crate::prepare::{prepare_contract, IntegrationContext};
 
-const SWEAT_WASM_FILEPATH: &str = "./res/sweat.wasm";
-const TARGET_BALANCE: u128 = 0;
+const TARGET_BALANCE: u128 = 9999999976902174720;
+const TARGET_STEPS_SINCE_TGE: u32 = 10_000;
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
+#[tokio::test]
+async fn test_mint() -> anyhow::Result<()> {
     let mut context = prepare_contract().await?;
+    let user = context.alice().await?;
+    let oracle = context.oracle().await?;
 
-    // can't use sandbox on M1 because of
-    // https://github.com/near/workspaces-rs/issues/110
-    // ☹️
-    let worker = workspaces::testnet().await?;
-    let wasm = std::fs::read(SWEAT_WASM_FILEPATH)?;
-    let contract = worker.dev_deploy(&wasm).await?;
-    let oracle = worker.dev_create_account().await?;
-    let user = worker.dev_create_account().await?;
-
-    let result = contract.call("new").args_json(json!({})).transact().await?;
-    println!("deploy: {:#?}", result);
-
-    let result = contract
-        .view("get_steps_since_tge")
-        .args_json(json!({}))
-        .await?
-        .json::<U64>()?;
+    let result = context.ft_contract().get_steps_since_tge().await?;
     assert_eq!(result, U64(0));
 
-    let result = contract
-        .view("formula")
-        .args_json(json!({
-            "steps_since_tge": U64(0),
-            "steps" : 10_000u32,
-        }))
-        .await?
-        .json::<U128>()?;
-    assert_eq!(result, U128(9999999991287398400));
+    let result = context.ft_contract().formula(U64(0), TARGET_STEPS_SINCE_TGE).await?;
+    assert_eq!(result, U128(TARGET_BALANCE));
 
-    let result = contract
-        .as_account()
-        .call(contract.id(), "add_oracle")
-        .args_json(json!({
-            "account_id": oracle.id(),
-        }))
-        .transact()
-        .await?;
-    println!("add_oracle: {:#?}", result);
-
-    let result = oracle
-        .call(contract.id(), "record_batch")
-        .args_json(json!({
-            "steps_batch": vec![(user.id(), 10_000u32)],
-        }))
-        .transact()
+    context
+        .ft_contract()
+        .with_user(&oracle)
+        .record_batch(vec![(user.to_near(), 10_000u32)])
         .await?;
 
-    println!("record_batch: {:#?}", result);
+    let result = context.ft_contract().ft_balance_of(oracle.to_near()).await?;
+    assert_eq!(result, U128(TARGET_BALANCE * 5 / 100));
 
-    let result = contract
-        .view("ft_balance_of")
-        .args_json(json!({
-            "account_id": oracle.id(),
-        }))
-        .await?
-        .json::<U128>()?;
-    assert_eq!(result, U128(9999999991287398400 * 5 / 100));
+    let result = context.ft_contract().ft_balance_of(user.to_near()).await?;
+    assert_eq!(result, U128(TARGET_BALANCE * 95 / 100));
 
-    let result = contract
-        .view("ft_balance_of")
-        .args_json(json!({
-            "account_id": user.id(),
-        }))
-        .await?
-        .json::<U128>()?;
-    assert_eq!(result, U128(9999999991287398400 * 95 / 100));
-
-    let result = contract
-        .view("get_steps_since_tge")
-        .args_json(json!({}))
-        .await?
-        .json::<U64>()?;
-    assert_eq!(result, U64(10_000));
+    let result = context.ft_contract().get_steps_since_tge().await?;
+    assert_eq!(result, U64(TARGET_STEPS_SINCE_TGE as u64));
 
     Ok(())
 }

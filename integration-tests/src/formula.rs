@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 use anyhow::Result;
 use integration_utils::integration_contract::IntegrationContract;
 use near_sdk::json_types::U64;
@@ -13,7 +11,7 @@ const EPS: f64 = 0.00001;
 async fn test_formula() -> Result<()> {
     let mut context = prepare_contract().await?;
 
-    let manager = context.manager().await?;
+    let oracle = context.oracle().await?;
 
     let steps = context.ft_contract().get_steps_since_tge().await?;
 
@@ -44,7 +42,7 @@ async fn test_formula() -> Result<()> {
         for steps in 0..steps_to_convert.len() {
             let formula_res = context
                 .ft_contract()
-                .with_user(&manager)
+                .with_user(&oracle)
                 .formula(U64(steps_from_tge[tge]), steps_to_convert[steps])
                 .await?
                 .0;

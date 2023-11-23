@@ -20,8 +20,30 @@ pub struct SweatFt<'a> {
 
 #[async_trait]
 impl FungibleTokenCoreIntegration for SweatFt<'_> {
-    async fn ft_transfer(&mut self, _receiver_id: AccountId, _amount: U128, _memo: Option<String>) -> Result<()> {
-        todo!()
+    async fn ft_transfer(&mut self, receiver_id: AccountId, amount: U128, memo: Option<String>) -> Result<()> {
+        println!("▶️ Transfer {:?} fungible tokens to {}", amount, receiver_id);
+
+        let args = json!({
+            "receiver_id": receiver_id,
+            "amount": amount,
+            "memo": memo,
+        });
+
+        let result = self
+            .user_account()
+            .call(self.contract.id(), "ft_transfer")
+            .args_json(args)
+            .max_gas()
+            .deposit(NearToken::from_yoctonear(1))
+            .transact()
+            .await?
+            .into_result()?;
+
+        for log in result.logs() {
+            println!("   📖 {:?}", log);
+        }
+
+        Ok(())
     }
 
     async fn ft_transfer_call(
@@ -65,6 +87,8 @@ impl FungibleTokenCoreIntegration for SweatFt<'_> {
     }
 
     async fn ft_balance_of(&self, account_id: AccountId) -> Result<U128> {
+        println!(">> Run ft_balance_of for {account_id}");
+
         self.call_contract(
             "ft_balance_of",
             json!({
@@ -88,7 +112,7 @@ impl StorageManagementIntegration for SweatFt<'_> {
             .contract
             .call("storage_deposit")
             .args_json(args)
-            .deposit(NearToken::from_millinear(3))
+            .deposit(NearToken::from_yoctonear(near_sdk::env::storage_byte_cost() * 125))
             .transact()
             .await?
             .into_result()?;
@@ -188,8 +212,14 @@ impl SweatApiIntegration for SweatFt<'_> {
         self.call_contract("get_steps_since_tge", ()).await
     }
 
-    async fn record_batch(&mut self, _steps_batch: Vec<(AccountId, u32)>) -> anyhow::Result<()> {
-        todo!()
+    async fn record_batch(&mut self, steps_batch: Vec<(AccountId, u32)>) -> anyhow::Result<()> {
+        self.call_user(
+            "record_batch",
+            json!({
+                "steps_batch": steps_batch,
+            }),
+        )
+        .await
     }
 
     async fn formula(&self, steps_since_tge: U64, steps: u32) -> anyhow::Result<U128> {
