@@ -24,9 +24,10 @@ impl SweatDefer for Contract {
             total_fee.0 += fee;
         }
 
-        let hold_arguments = json!({
-            "amounts": accounts_tokens,
-        });
+        let hold_arguments =
+            json!({
+                "amounts": accounts_tokens,
+            });
 
         Promise::new(holding_account_id.clone())
             .function_call(
@@ -49,6 +50,7 @@ pub trait FungibleTokenTransferCallback {
     fn on_record(&mut self, receiver_id: AccountId, amount: U128, fee: U128);
 }
 
+#[near_bindgen]
 impl FungibleTokenTransferCallback for Contract {
     fn on_record(&mut self, receiver_id: AccountId, amount: U128, fee: U128) {
         log_str("@@ on record");
