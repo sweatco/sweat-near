@@ -57,8 +57,8 @@ async fn main() -> anyhow::Result<()> {
                 .0 as f64
                 / 1e+18;
             println!(
-                "formula ({} {}) = {}",
-                steps_since_tge[tge], steps_to_convert[steps], formula_res
+                "{}. formula ({} {}) = {}",
+                test_number, steps_since_tge[tge], steps_to_convert[steps], formula_res
             );
 
             let diff = formula_res - TEST_RESULTS[test_number];
@@ -110,7 +110,7 @@ const TEST_RESULTS: [f64; 80] = [
     0.009999982574784676,
     0.09999982574706262,
     0.9999982573922128,
-    9.999982566080785,
+    9.999982566080785, //
     0.0009999825747933012,
     0.009999825747925172,
     0.09999825747846758,
