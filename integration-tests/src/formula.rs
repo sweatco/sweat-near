@@ -1,3 +1,5 @@
+#![cfg(test)]
+
 use anyhow::Result;
 use integration_utils::integration_contract::IntegrationContract;
 use near_sdk::json_types::U64;

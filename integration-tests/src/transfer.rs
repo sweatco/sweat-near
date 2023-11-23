@@ -1,3 +1,5 @@
+#![cfg(test)]
+
 use near_sdk::json_types::{U128, U64};
 use serde_json::json;
 

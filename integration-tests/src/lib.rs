@@ -7,7 +7,9 @@ use crate::prepare::{prepare_contract, IntegrationContext};
 
 mod formula;
 mod interface;
+mod mint;
 mod prepare;
+mod transfer;
 
 #[tokio::test]
 async fn happy_flow() -> anyhow::Result<()> {

@@ -19,11 +19,11 @@ near-sdk = { workspace = true }
 
 [[example]]
 name = "mint"
-path = "src/mint.rs"
+path = "../integration-tests/src/mint.rs"
 
 [[example]]
 name = "transfer"
-path = "src/transfer.rs"
+path = "../integration-tests/src/transfer.rs"
 
 [[example]]
 name = "formula"

@@ -1,10 +1,17 @@
+#![cfg(test)]
+
 use near_sdk::json_types::{U128, U64};
 use serde_json::json;
 
+use crate::prepare::{prepare_contract, IntegrationContext};
+
 const SWEAT_WASM_FILEPATH: &str = "./res/sweat.wasm";
+const TARGET_BALANCE: u128 = 0;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let mut context = prepare_contract().await?;
+
     // can't use sandbox on M1 because of
     // https://github.com/near/workspaces-rs/issues/110
     // ☹️
