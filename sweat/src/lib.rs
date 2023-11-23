@@ -152,20 +152,6 @@ impl Contract {
     }
 }
 
-#[ext_contract(ext_ft_transfer_callback)]
-pub trait FungibleTokenTransferCallback {
-    fn on_transfer(&mut self, receiver_id: AccountId, amount: U128);
-}
-
-#[near_bindgen]
-impl FungibleTokenTransferCallback for Contract {
-    fn on_transfer(&mut self, receiver_id: AccountId, amount: U128) {
-        if !is_promise_success() {
-            rollback_internal_deposit(&mut self.token, &receiver_id, amount.0);
-        }
-    }
-}
-
 near_contract_standards::impl_fungible_token_core!(Contract, token);
 near_contract_standards::impl_fungible_token_storage!(Contract, token);
 
@@ -182,18 +168,6 @@ fn internal_deposit(token: &mut FungibleToken, account_id: &AccountId, amount: B
         .total_supply
         .checked_add(amount)
         .unwrap_or_else(|| env::panic_str("Total supply overflow"));
-}
-
-fn rollback_internal_deposit(token: &mut FungibleToken, account_id: &AccountId, amount: Balance) {
-    let balance = token.accounts.get(account_id).unwrap_or_default();
-    let new_balance = balance
-        .checked_sub(amount)
-        .unwrap_or_else(|| env::panic_str("Balance is out of type bounds"));
-    token.accounts.insert(account_id, &new_balance);
-    token.total_supply = token
-        .total_supply
-        .checked_sub(amount)
-        .unwrap_or_else(|| env::panic_str("Total supply is out of type bounds"));
 }
 
 pub const ICON: &str = "data:image/svg+xml,%3Csvg viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' rx='50' fill='%23FF0D75'/%3E%3Cg clip-path='url(%23clip0_283_2788)'%3E%3Cpath d='M39.4653 77.5455L19.0089 40.02L35.5411 22.2805L55.9975 59.806L39.4653 77.5455Z' stroke='white' stroke-width='10'/%3E%3Cpath d='M66.0253 77.8531L45.569 40.3276L62.1012 22.5882L82.5576 60.1136L66.0253 77.8531Z' stroke='white' stroke-width='10'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_283_2788'%3E%3Crect width='100' height='56' fill='white' transform='translate(0 22)'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E%0A";

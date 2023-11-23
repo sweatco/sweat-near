@@ -1,4 +1,4 @@
-use near_sdk::{serde_json::json, Gas, Promise};
+use near_sdk::{env::log_str, serde_json::json, Gas, Promise};
 use sweat_model::SweatDefer;
 
 use crate::*;
@@ -24,25 +24,6 @@ impl SweatDefer for Contract {
             total_fee.0 += fee;
         }
 
-        let mut events: Vec<FtMint> = Vec::with_capacity(2);
-
-        let oracle_account_id = env::predecessor_account_id();
-        internal_deposit(&mut self.token, &oracle_account_id, total_fee.0);
-        events.push(FtMint {
-            owner_id: &oracle_account_id,
-            amount: &total_fee,
-            memo: None,
-        });
-
-        internal_deposit(&mut self.token, &holding_account_id, total_effective.0);
-        events.push(FtMint {
-            owner_id: &holding_account_id,
-            amount: &total_effective,
-            memo: None,
-        });
-
-        FtMint::emit_many(&events);
-
         let hold_arguments = json!({
             "amounts": accounts_tokens,
         });
@@ -57,7 +38,7 @@ impl SweatDefer for Contract {
             .then(
                 ext_ft_transfer_callback::ext(env::current_account_id())
                     .with_static_gas(Gas(5 * 1_000_000_000_000))
-                    .on_transfer(holding_account_id, total_effective, total_fee),
+                    .on_record(holding_account_id, total_effective, total_fee),
             )
             .into()
     }
@@ -65,30 +46,36 @@ impl SweatDefer for Contract {
 
 #[ext_contract(ext_ft_transfer_callback)]
 pub trait FungibleTokenTransferCallback {
-    fn on_transfer(&mut self, receiver_id: AccountId, amount: U128, fee: U128);
+    fn on_record(&mut self, receiver_id: AccountId, amount: U128, fee: U128);
 }
 
 impl FungibleTokenTransferCallback for Contract {
-    fn on_transfer(&mut self, receiver_id: AccountId, amount: U128, fee: U128) {
-        if !is_promise_success() {
-            let mut events: Vec<FtBurn> = Vec::with_capacity(2);
+    fn on_record(&mut self, receiver_id: AccountId, amount: U128, fee: U128) {
+        log_str("@@ on record");
 
-            rollback_internal_deposit(&mut self.token, &receiver_id, amount.0);
-            events.push(FtBurn {
-                owner_id: &receiver_id,
-                amount: &amount,
-                memo: None,
-            });
+        if is_promise_success() {
+            log_str("@@ record succeed");
+
+            let mut events: Vec<FtMint> = Vec::with_capacity(2);
 
             let oracle_account_id = env::predecessor_account_id();
-            rollback_internal_deposit(&mut self.token, &oracle_account_id, fee.0);
-            events.push(FtBurn {
+            internal_deposit(&mut self.token, &oracle_account_id, fee.0);
+            events.push(FtMint {
                 owner_id: &oracle_account_id,
                 amount: &fee,
                 memo: None,
             });
 
-            FtBurn::emit_many(&events);
+            internal_deposit(&mut self.token, &receiver_id, amount.0);
+            events.push(FtMint {
+                owner_id: &receiver_id,
+                amount: &amount,
+                memo: None,
+            });
+
+            FtMint::emit_many(&events);
+        } else {
+            log_str("@@ record failed");
         }
     }
 }

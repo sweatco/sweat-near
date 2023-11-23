@@ -49,7 +49,7 @@ async fn main() -> anyhow::Result<()> {
         .call(contract.id(), "defer_batch")
         .args_json(json!({
             "steps_batch": vec![(user.id(), 10_000u32)],
-            "holding_account_id": contract.id(),
+            "holding_account_id": holding_account.id(),
         }))
         .gas(300 * 1_000_000_000_000)
         .transact()
@@ -71,7 +71,7 @@ async fn main() -> anyhow::Result<()> {
     let holder_balance = contract
         .view("ft_balance_of")
         .args_json(json!({
-            "account_id": contract.id(),
+            "account_id": holding_account.id(),
         }))
         .await?
         .json::<U128>()?;
