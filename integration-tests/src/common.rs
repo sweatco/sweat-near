@@ -16,8 +16,7 @@ impl PanicFinder for Result<ExecutionSuccess, ExecutionFailure> {
 impl<T> PanicFinder for ExecutionResult<T> {
     fn has_panic(&self, message: &str) -> bool {
         self.outcomes()
-            .iter()
-            .cloned()
+            .into_iter()
             .map(|item| match item.clone().into_result() {
                 Ok(_) => None,
                 Err(err) => Some(err),
