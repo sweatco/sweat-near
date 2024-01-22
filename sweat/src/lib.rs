@@ -66,7 +66,7 @@ impl SweatApi for Contract {
         internal_deposit(&mut self.token, &account_id, amount.0);
         FtMint {
             owner_id: account_id,
-            amount: &amount,
+            amount,
             memo: None,
         }
         .emit()
@@ -82,7 +82,7 @@ impl SweatApi for Contract {
             internal_deposit(&mut self.token, &batch[i].0, batch[i].1 .0);
             events.push(FtMint {
                 owner_id: &batch[i].0,
-                amount: &batch[i].1,
+                amount: batch[i].1,
                 memo: None,
             })
         }
@@ -94,7 +94,7 @@ impl SweatApi for Contract {
     fn burn(&mut self, amount: &U128) {
         self.token.internal_withdraw(&env::predecessor_account_id(), amount.0);
         FtBurn {
-            amount,
+            amount: *amount,
             owner_id: &env::predecessor_account_id(),
             memo: None,
         }
@@ -123,14 +123,14 @@ impl SweatApi for Contract {
         for i in 0..steps_batch.len() {
             events.push(FtMint {
                 owner_id: &steps_batch[i].0,
-                amount: &sweats[i],
+                amount: sweats[i],
                 memo: None,
             });
         }
         internal_deposit(&mut self.token, &env::predecessor_account_id(), oracle_fee.0);
         let oracle_event = FtMint {
             owner_id: &env::predecessor_account_id(),
-            amount: &oracle_fee,
+            amount: oracle_fee,
             memo: None,
         };
         events.push(oracle_event);
