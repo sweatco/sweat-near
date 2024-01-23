@@ -4,7 +4,6 @@ extern crate static_assertions;
 use near_contract_standards::fungible_token::{
     events::{FtBurn, FtMint},
     metadata::{FungibleTokenMetadata, FungibleTokenMetadataProvider},
-    FungibleToken,
 };
 use near_sdk::{
     borsh::{self, BorshDeserialize, BorshSerialize},
@@ -15,8 +14,11 @@ use near_sdk::{
 };
 use sweat_model::SweatApi;
 
+use crate::token::FungibleToken;
+
 mod defer;
 mod math;
+pub(crate) mod token;
 
 #[near_bindgen]
 #[derive(BorshSerialize, BorshDeserialize, PanicOnDefault)]
