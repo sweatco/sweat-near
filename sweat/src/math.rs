@@ -5,6 +5,7 @@ const fn assert_lookup_lengths() {
     const_assert_eq!(KS.len(), BS.len());
 }
 
+#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 pub fn formula(steps_since_tge: f64, steps: f64) -> u128 {
     let trillion = (steps_since_tge / 1e+12).floor() as usize;
     if trillion < KS.len() {
@@ -13,6 +14,8 @@ pub fn formula(steps_since_tge: f64, steps: f64) -> u128 {
         (exp_decay(steps_since_tge, steps) * 1e+18) as u128
     }
 }
+
+#[allow(clippy::cast_possible_truncation)]
 pub fn area_under_line(k: f64, b: f64, x_start: f64, x_end: f64) -> f64 {
     let square_area = (k * x_end + b) * (x_end - x_start);
     let triangle_area = ((k * x_start + b) - (k * x_end + b)) * (x_end - x_start) / 2.;
