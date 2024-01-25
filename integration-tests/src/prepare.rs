@@ -4,7 +4,7 @@ use near_workspaces::{Account, Contract};
 use sweat_integration::{SweatFt, FT_CONTRACT};
 use sweat_model::{StorageManagementIntegration, SweatApiIntegration};
 
-const HOLDING_STUB_CONTRACT: &str = "defer_stub";
+const HOLDING_STUB_CONTRACT: &str = "sweat_claim";
 
 pub type Context = integration_utils::context::Context<near_workspaces::network::Sandbox>;
 
