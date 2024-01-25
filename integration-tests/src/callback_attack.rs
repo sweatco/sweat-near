@@ -6,6 +6,7 @@ use sweat_model::FungibleTokenCoreIntegration;
 
 use crate::{
     common::PanicFinder,
+    interface::common::ContractAccount,
     prepare::{prepare_contract, IntegrationContext},
 };
 
@@ -16,12 +17,13 @@ async fn test_call_on_record_in_callback() -> anyhow::Result<()> {
     let alice = context.alice().await?;
 
     let alice_balance_before_attack = context.ft_contract().ft_balance_of(alice.to_near()).call().await?;
+    let ft_contract_id = context.ft_contract().account();
 
     let target_amount = U128(1_000_000);
     let result = alice
         .call(context.holding_contract().id(), "exploit_on_record")
         .args_json(json!({
-            "ft_account_id": context.ft_contract().account(),
+            "ft_account_id": ft_contract_id,
             "amount": target_amount,
         }))
         .max_gas()
