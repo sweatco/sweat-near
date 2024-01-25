@@ -36,7 +36,7 @@ impl IntegrationContext for Context {
     }
 
     async fn long_account_name(&mut self) -> Result<Account> {
-        self.account("aaaaaaaaaaaaaaaaaaaa").await
+        self.account("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").await
     }
 
     fn ft_contract(&self) -> SweatFt {
@@ -48,8 +48,8 @@ impl IntegrationContext for Context {
     }
 }
 
-pub async fn prepare_contract() -> anyhow::Result<Context> {
-    let mut context = Context::new(&[FT_CONTRACT, CLAIM_CONTRACT], "build".into()).await?;
+pub async fn prepare_contract() -> Result<Context> {
+    let mut context = Context::new(&[FT_CONTRACT, CLAIM_CONTRACT], "build-integration".into()).await?;
     let oracle = context.oracle().await?;
     let alice = context.alice().await?;
     let long = context.long_account_name().await?;
