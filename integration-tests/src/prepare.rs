@@ -1,3 +1,4 @@
+use anyhow::Result;
 use async_trait::async_trait;
 use integration_utils::{integration_contract::IntegrationContract, misc::ToNear};
 use near_sdk::serde_json::json;
@@ -11,9 +12,10 @@ pub type Context = integration_utils::context::Context<near_workspaces::network:
 
 #[async_trait]
 pub trait IntegrationContext {
-    async fn oracle(&mut self) -> anyhow::Result<Account>;
-    async fn alice(&mut self) -> anyhow::Result<Account>;
-    async fn bob(&mut self) -> anyhow::Result<Account>;
+    async fn oracle(&mut self) -> Result<Account>;
+    async fn alice(&mut self) -> Result<Account>;
+    async fn bob(&mut self) -> Result<Account>;
+    async fn long_account_name(&mut self) -> Result<Account>;
     fn ft_contract(&self) -> SweatFt;
 
     fn claim_contract(&self) -> &Contract;
@@ -21,16 +23,20 @@ pub trait IntegrationContext {
 
 #[async_trait]
 impl IntegrationContext for Context {
-    async fn oracle(&mut self) -> anyhow::Result<Account> {
+    async fn oracle(&mut self) -> Result<Account> {
         self.account("oracle").await
     }
 
-    async fn alice(&mut self) -> anyhow::Result<Account> {
+    async fn alice(&mut self) -> Result<Account> {
         self.account("alice").await
     }
 
-    async fn bob(&mut self) -> anyhow::Result<Account> {
+    async fn bob(&mut self) -> Result<Account> {
         self.account("bob").await
+    }
+
+    async fn long_account_name(&mut self) -> Result<Account> {
+        self.account("aaaaaaaaaaaaaaaaaaaa").await
     }
 
     fn ft_contract(&self) -> SweatFt {
@@ -46,6 +52,7 @@ pub async fn prepare_contract() -> anyhow::Result<Context> {
     let mut context = Context::new(&[FT_CONTRACT, CLAIM_CONTRACT], "build".into()).await?;
     let oracle = context.oracle().await?;
     let alice = context.alice().await?;
+    let long = context.long_account_name().await?;
     let token_account_id = context.ft_contract().contract().as_account().to_near();
 
     context
@@ -63,6 +70,12 @@ pub async fn prepare_contract() -> anyhow::Result<Context> {
     context
         .ft_contract()
         .storage_deposit(alice.to_near().into(), None)
+        .call()
+        .await?;
+
+    context
+        .ft_contract()
+        .storage_deposit(long.to_near().into(), None)
         .call()
         .await?;
 
