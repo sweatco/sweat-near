@@ -84,5 +84,5 @@ pub trait StorageManagement {
 
 #[make_integration_version]
 pub trait IntegrationTestMethods {
-    fn calculate_fee_for_batch(&self, batch_size: u32, claim_amount: u32) -> (U128, U128);
+    fn calculate_payout_with_fee_for_batch(&self, batch_size: u32, claim_amount: u32) -> (U128, U128);
 }

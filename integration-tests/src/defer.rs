@@ -26,7 +26,7 @@ async fn test_defer() -> anyhow::Result<()> {
 
     let (total_fee, total_for_user) = context
         .ft_contract()
-        .calculate_fee_for_batch(BATCH_SIZE, CLAIM_AMOUNT)
+        .calculate_payout_with_fee_for_batch(BATCH_SIZE, CLAIM_AMOUNT)
         .call()
         .await?;
 

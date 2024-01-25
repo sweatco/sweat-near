@@ -10,7 +10,7 @@ use crate::{Contract, ContractExt};
 
 #[near_bindgen]
 impl IntegrationTestMethods for Contract {
-    fn calculate_fee_for_batch(&self, batch_size: u32, claim_amount: u32) -> (U128, U128) {
+    fn calculate_payout_with_fee_for_batch(&self, batch_size: u32, claim_amount: u32) -> (U128, U128) {
         let mut total_fee = 0;
         let mut total_for_user = 0;
 

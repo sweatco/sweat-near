@@ -1,11 +1,6 @@
 use near_contract_standards::fungible_token::events::FtMint;
 use near_sdk::{
-    env,
-    env::{log_str, panic_str},
-    ext_contract, is_promise_success,
-    json_types::U128,
-    near_bindgen, require,
-    serde_json::json,
+    env, env::panic_str, ext_contract, is_promise_success, json_types::U128, near_bindgen, require, serde_json::json,
     AccountId, Gas, Promise, PromiseOrValue,
 };
 use sweat_model::SweatDefer;
@@ -43,9 +38,6 @@ impl SweatDefer for Contract {
 
         // These values calculated in `measure_record_batch_for_hold_test` in claim contract.
         let record_batch_for_hold_gas = Gas::ONE_TERA * 8 + Gas(batch_len * ONE_GGAS * 320);
-
-        log_str("holding_account_id");
-        log_str(holding_account_id.as_str());
 
         Promise::new(holding_account_id.clone())
             .function_call(
