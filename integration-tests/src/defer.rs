@@ -11,7 +11,7 @@ async fn test_defer() -> anyhow::Result<()> {
     let mut context = prepare_contract().await?;
     let oracle = context.oracle().await?;
     let alice = context.alice().await?;
-    let holding_account = context.holding_contract().as_account().to_near();
+    let holding_account = context.claim_contract().as_account().to_near();
 
     let target_amount = context.ft_contract().formula(U64(0), 10_000).call().await?;
     assert_ne!(0, target_amount.0);
