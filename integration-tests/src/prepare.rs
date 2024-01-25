@@ -7,6 +7,7 @@ use sweat_integration::{SweatFt, FT_CONTRACT};
 use sweat_model::{StorageManagementIntegration, SweatApiIntegration};
 
 const CLAIM_CONTRACT: &str = "sweat_claim";
+const HOLDING_STUB_CONTRACT: &str = "exploit_stub";
 
 pub type Context = integration_utils::context::Context<near_workspaces::network::Sandbox>;
 
@@ -16,9 +17,10 @@ pub trait IntegrationContext {
     async fn alice(&mut self) -> Result<Account>;
     async fn bob(&mut self) -> Result<Account>;
     async fn long_account_name(&mut self) -> Result<Account>;
-    fn ft_contract(&self) -> SweatFt;
 
+    fn ft_contract(&self) -> SweatFt;
     fn claim_contract(&self) -> &Contract;
+    fn stub_contract(&self) -> &Contract;
 }
 
 #[async_trait]
@@ -46,10 +48,18 @@ impl IntegrationContext for Context {
     fn claim_contract(&self) -> &Contract {
         &self.contracts[CLAIM_CONTRACT]
     }
+
+    fn stub_contract(&self) -> &Contract {
+        &self.contracts[HOLDING_STUB_CONTRACT]
+    }
 }
 
 pub async fn prepare_contract() -> Result<Context> {
-    let mut context = Context::new(&[FT_CONTRACT, CLAIM_CONTRACT], "build-integration".into()).await?;
+    let mut context = Context::new(
+        &[FT_CONTRACT, CLAIM_CONTRACT, HOLDING_STUB_CONTRACT],
+        "build-integration".into(),
+    )
+    .await?;
     let oracle = context.oracle().await?;
     let alice = context.alice().await?;
     let long = context.long_account_name().await?;
@@ -81,7 +91,7 @@ pub async fn prepare_contract() -> Result<Context> {
 
     context.ft_contract().add_oracle(&oracle.to_near()).call().await?;
 
-    let holding_contract_init_result = context
+    let claim_contract_result = context
         .claim_contract()
         .call("init")
         .args_json(json!({ "token_account_id": token_account_id }))
@@ -90,7 +100,17 @@ pub async fn prepare_contract() -> Result<Context> {
         .await?
         .into_result()?;
 
-    println!("Initialized holding contract: {:?}", holding_contract_init_result);
+    println!("Initialized claim contract: {:?}", claim_contract_result);
+
+    let exploit_stup_contract_result = context
+        .stub_contract()
+        .call("new")
+        .max_gas()
+        .transact()
+        .await?
+        .into_result()?;
+
+    println!("Initialized exploit stub contract: {:?}", exploit_stup_contract_result);
 
     context
         .claim_contract()

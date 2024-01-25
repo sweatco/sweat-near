@@ -21,7 +21,7 @@ async fn test_call_on_record_in_callback() -> anyhow::Result<()> {
 
     let target_amount = U128(1_000_000);
     let result = alice
-        .call(context.claim_contract().id(), "exploit_on_record")
+        .call(context.stub_contract().id(), "exploit_on_record")
         .args_json(json!({
             "ft_account_id": ft_contract_id,
             "amount": target_amount,

@@ -1190,6 +1190,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "exploit-stub"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
+]
+
+[[package]]
 name = "fake"
 version = "2.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

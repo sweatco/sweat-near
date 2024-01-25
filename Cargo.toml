@@ -4,6 +4,7 @@ members = [
     "sweat",
     "sweat-integration",
     "integration-tests",
+    "exploit-stub"
 ]
 
 resolver = "2"
