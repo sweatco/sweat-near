@@ -94,7 +94,19 @@ pub struct Payout {
 
 impl From<u128> for Payout {
     fn from(value: u128) -> Self {
-        let fee = (value * 5).div_ceil(100);
+        // To make it compile on stable 1.69
+        #[inline]
+        const fn div_ceil(lhs: u128, rhs: u128) -> u128 {
+            let d = lhs / rhs;
+            let r = lhs % rhs;
+            if r > 0 && rhs > 0 {
+                d + 1
+            } else {
+                d
+            }
+        }
+
+        let fee = div_ceil(value * 5, 100);
 
         Self {
             fee,
