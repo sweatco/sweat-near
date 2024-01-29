@@ -1,3 +1,4 @@
+#![feature(int_roundings)]
 #![allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
 
 use integration_trait::make_integration_version;
