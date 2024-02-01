@@ -1,10 +1,9 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use integration_utils::{integration_contract::IntegrationContract, misc::ToNear};
-use near_sdk::serde_json::json;
-use near_workspaces::{Account, Contract};
-use sweat_integration::{SweatFt, FT_CONTRACT};
-use sweat_model::{StorageManagementIntegration, SweatApiIntegration};
+use near_sdk::{env::storage_byte_cost, serde_json::json};
+use near_workspaces::{types::NearToken, Account, Contract};
+use sweat_model::{StorageManagementIntegration, SweatApiIntegration, SweatContract, FT_CONTRACT};
 
 const CLAIM_CONTRACT: &str = "sweat_claim";
 const HOLDING_STUB_CONTRACT: &str = "exploit_stub";
@@ -18,7 +17,7 @@ pub trait IntegrationContext {
     async fn bob(&mut self) -> Result<Account>;
     async fn long_account_name(&mut self) -> Result<Account>;
 
-    fn ft_contract(&self) -> SweatFt;
+    fn ft_contract(&self) -> SweatContract;
     fn claim_contract(&self) -> &Contract;
     fn stub_contract(&self) -> &Contract;
 }
@@ -41,8 +40,8 @@ impl IntegrationContext for Context {
         self.account("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").await
     }
 
-    fn ft_contract(&self) -> SweatFt {
-        SweatFt::with_contract(&self.contracts[FT_CONTRACT])
+    fn ft_contract(&self) -> SweatContract {
+        SweatContract::with_contract(&self.contracts[FT_CONTRACT])
     }
 
     fn claim_contract(&self) -> &Contract {
@@ -57,6 +56,7 @@ impl IntegrationContext for Context {
 pub async fn prepare_contract() -> Result<Context> {
     let mut context = Context::new(
         &[FT_CONTRACT, CLAIM_CONTRACT, HOLDING_STUB_CONTRACT],
+        true,
         "build-integration".into(),
     )
     .await?;
@@ -74,18 +74,21 @@ pub async fn prepare_contract() -> Result<Context> {
     context
         .ft_contract()
         .storage_deposit(oracle.to_near().into(), None)
+        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await?;
 
     context
         .ft_contract()
         .storage_deposit(alice.to_near().into(), None)
+        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await?;
 
     context
         .ft_contract()
         .storage_deposit(long.to_near().into(), None)
+        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await?;
 
@@ -124,6 +127,7 @@ pub async fn prepare_contract() -> Result<Context> {
     context
         .ft_contract()
         .storage_deposit(context.claim_contract().as_account().to_near().into(), None)
+        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await?;
 
