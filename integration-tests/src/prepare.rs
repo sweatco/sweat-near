@@ -1,12 +1,13 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use integration_utils::{integration_contract::IntegrationContract, misc::ToNear};
+use integration_utils::misc::ToNear;
 use near_sdk::{env::storage_byte_cost, serde_json::json};
 use near_workspaces::{types::NearToken, Account, Contract};
-use sweat_model::{StorageManagementIntegration, SweatApiIntegration, SweatContract, FT_CONTRACT};
+use sweat_model::{StorageManagementIntegration, SweatApiIntegration, SweatContract};
 
 const CLAIM_CONTRACT: &str = "sweat_claim";
 const HOLDING_STUB_CONTRACT: &str = "exploit_stub";
+const FT_CONTRACT: &str = "sweat";
 
 pub type Context = integration_utils::context::Context<near_workspaces::network::Sandbox>;
 
@@ -41,7 +42,9 @@ impl IntegrationContext for Context {
     }
 
     fn ft_contract(&self) -> SweatContract {
-        SweatContract::with_contract(&self.contracts[FT_CONTRACT])
+        SweatContract {
+            contract: &self.contracts[FT_CONTRACT],
+        }
     }
 
     fn claim_contract(&self) -> &Contract {
@@ -63,7 +66,7 @@ pub async fn prepare_contract() -> Result<Context> {
     let oracle = context.oracle().await?;
     let alice = context.alice().await?;
     let long = context.long_account_name().await?;
-    let token_account_id = context.ft_contract().contract().as_account().to_near();
+    let token_account_id = context.ft_contract().contract.as_account().to_near();
 
     context
         .ft_contract()

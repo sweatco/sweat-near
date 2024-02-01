@@ -1772,7 +1772,7 @@ dependencies = [
 [[package]]
 name = "integration-trait"
 version = "0.1.0"
-source = "git+https://github.com/sweatco/integration-utils.git?rev=ecbbd51f83981786c8c2b76240ac4d4e705a8c77#ecbbd51f83981786c8c2b76240ac4d4e705a8c77"
+source = "git+https://github.com/sweatco/integration-utils.git?rev=ef119de488d32759497b4029f2b8315019e03081#ef119de488d32759497b4029f2b8315019e03081"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1782,7 +1782,7 @@ dependencies = [
 [[package]]
 name = "integration-utils"
 version = "0.1.0"
-source = "git+https://github.com/sweatco/integration-utils.git?rev=ecbbd51f83981786c8c2b76240ac4d4e705a8c77#ecbbd51f83981786c8c2b76240ac4d4e705a8c77"
+source = "git+https://github.com/sweatco/integration-utils.git?rev=ef119de488d32759497b4029f2b8315019e03081#ef119de488d32759497b4029f2b8315019e03081"
 dependencies = [
  "anyhow",
  "async-trait",

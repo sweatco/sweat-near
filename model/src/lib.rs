@@ -8,22 +8,8 @@ use near_sdk::{
 };
 
 #[cfg(feature = "integration-test")]
-pub const FT_CONTRACT: &str = "sweat";
-
-#[cfg(feature = "integration-test")]
 pub struct SweatContract<'a> {
-    pub(crate) contract: &'a near_workspaces::Contract,
-}
-
-#[cfg(feature = "integration-test")]
-impl<'a> integration_utils::integration_contract::IntegrationContract<'a> for SweatContract<'a> {
-    fn with_contract(contract: &'a near_workspaces::Contract) -> Self {
-        Self { contract }
-    }
-
-    fn contract(&self) -> &'a near_workspaces::Contract {
-        self.contract
-    }
+    pub contract: &'a near_workspaces::Contract,
 }
 
 #[make_integration_version]
