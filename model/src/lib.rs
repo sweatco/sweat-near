@@ -34,6 +34,7 @@ pub trait SweatDefer {
 /// Copy of near_sdk trait to use in integration tests
 #[make_integration_version]
 pub trait FungibleTokenCore {
+    #[deposit_one_yocto]
     fn ft_transfer(&mut self, receiver_id: AccountId, amount: U128, memo: Option<String>);
     fn ft_transfer_call(
         &mut self,

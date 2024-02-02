@@ -44,7 +44,6 @@ async fn test_transfer() -> anyhow::Result<()> {
         .ft_contract()
         .ft_transfer(bob.to_near(), alice_balance, None)
         .with_user(&alice)
-        .deposit(NearToken::from_yoctonear(1))
         .call()
         .await?;
 
