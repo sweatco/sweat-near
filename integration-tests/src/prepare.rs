@@ -1,8 +1,8 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use integration_utils::misc::ToNear;
-use near_sdk::{env::storage_byte_cost, serde_json::json};
-use near_workspaces::{types::NearToken, Account, Contract};
+use near_sdk::serde_json::json;
+use near_workspaces::{Account, Contract};
 use sweat_model::{StorageManagementIntegration, SweatApiIntegration, SweatContract};
 
 const CLAIM_CONTRACT: &str = "sweat_claim";
@@ -77,21 +77,18 @@ pub async fn prepare_contract() -> Result<Context> {
     context
         .ft_contract()
         .storage_deposit(oracle.to_near().into(), None)
-        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await?;
 
     context
         .ft_contract()
         .storage_deposit(alice.to_near().into(), None)
-        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await?;
 
     context
         .ft_contract()
         .storage_deposit(long.to_near().into(), None)
-        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await?;
 
@@ -130,7 +127,6 @@ pub async fn prepare_contract() -> Result<Context> {
     context
         .ft_contract()
         .storage_deposit(context.claim_contract().as_account().to_near().into(), None)
-        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await?;
 

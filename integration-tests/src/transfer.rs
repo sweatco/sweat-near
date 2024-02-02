@@ -1,6 +1,5 @@
 use integration_utils::misc::ToNear;
-use near_sdk::{env::storage_byte_cost, json_types::U128};
-use near_workspaces::types::NearToken;
+use near_sdk::json_types::U128;
 use sweat_model::{FungibleTokenCoreIntegration, StorageManagementIntegration, SweatApiIntegration};
 
 use crate::prepare::{prepare_contract, IntegrationContext};
@@ -31,7 +30,6 @@ async fn test_transfer() -> anyhow::Result<()> {
     let res = context
         .ft_contract()
         .storage_deposit(Some(bob.to_near()), None)
-        .deposit(NearToken::from_yoctonear(storage_byte_cost() * 125))
         .call()
         .await;
     assert!(res.is_ok());

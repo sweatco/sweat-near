@@ -52,6 +52,7 @@ pub trait FungibleTokenCore {
 pub trait StorageManagement {
     // if `registration_only=true` MUST refund above the minimum balance if the account didn't exist and
     //     refund full deposit if the account exists.
+    #[deposit_yocto = near_sdk::env::storage_byte_cost() * 125]
     fn storage_deposit(&mut self, account_id: Option<AccountId>, registration_only: Option<bool>) -> StorageBalance;
 
     /// Withdraw specified amount of available Ⓝ for predecessor account.
