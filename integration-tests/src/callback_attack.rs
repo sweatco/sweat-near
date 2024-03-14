@@ -1,7 +1,7 @@
 #![cfg(test)]
 
-use integration_utils::misc::ToNear;
 use near_sdk::{json_types::U128, serde_json::json};
+use nitka::misc::ToNear;
 use sweat_model::FungibleTokenCoreIntegration;
 
 use crate::{

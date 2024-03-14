@@ -1,15 +1,15 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use integration_utils::misc::ToNear;
 use near_sdk::serde_json::json;
 use near_workspaces::{Account, Contract};
+use nitka::misc::ToNear;
 use sweat_model::{StorageManagementIntegration, SweatApiIntegration, SweatContract};
 
 const CLAIM_CONTRACT: &str = "sweat_claim";
 const HOLDING_STUB_CONTRACT: &str = "exploit_stub";
 const FT_CONTRACT: &str = "sweat";
 
-pub type Context = integration_utils::context::Context<near_workspaces::network::Sandbox>;
+pub type Context = nitka::context::Context<near_workspaces::network::Sandbox>;
 
 #[async_trait]
 pub trait IntegrationContext {

@@ -3,8 +3,8 @@
 use std::future::IntoFuture;
 
 use anyhow::Result;
-use integration_utils::measure::outcome_storage::OutcomeStorage;
 use near_workspaces::types::Gas;
+use nitka::measure::outcome_storage::OutcomeStorage;
 use sweat_model::SweatApiIntegration;
 
 use crate::{prepare::IntegrationContext, prepare_contract};

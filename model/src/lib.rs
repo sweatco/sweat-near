@@ -1,13 +1,17 @@
 #![allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
 
-use integration_trait::make_integration_version;
 use near_contract_standards::storage_management::{StorageBalance, StorageBalanceBounds};
+#[cfg(feature = "release-api")]
+use near_sdk::AccountId;
 use near_sdk::{
     json_types::{U128, U64},
-    AccountId, PromiseOrValue,
+    PromiseOrValue,
 };
+#[cfg(feature = "integration-api")]
+use nitka::AccountId;
+use nitka_proc::make_integration_version;
 
-#[cfg(feature = "integration-test")]
+#[cfg(feature = "integration-api")]
 pub struct SweatContract<'a> {
     pub contract: &'a near_workspaces::Contract,
 }
