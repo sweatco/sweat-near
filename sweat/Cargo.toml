@@ -9,8 +9,10 @@ publish = false
 crate-type = ["cdylib"]
 
 [features]
-default = []
-integration-test = []
+default = ["release"]
+release = ["sweat-model/release-api"]
+integration-test = ["sweat-model/release-api"]
+integration-api = ["sweat-model/integration-api"]
 
 [dependencies]
 sweat-model = { workspace = true }

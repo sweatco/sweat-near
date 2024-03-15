@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use integration_utils::misc::ToNear;
+use nitka::misc::ToNear;
 use sweat_model::{FungibleTokenCoreIntegration, IntegrationTestMethodsIntegration, SweatDeferIntegration};
 
 use crate::prepare::{prepare_contract, IntegrationContext};
