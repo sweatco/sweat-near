@@ -1,6 +1,7 @@
 #![cfg(feature = "integration-test")]
 
 use near_sdk::{
+    env::log_str,
     json_types::{U128, U64},
     near_bindgen,
 };
@@ -27,5 +28,9 @@ impl IntegrationTestMethods for Contract {
         }
 
         (U128(total_fee), U128(total_for_user))
+    }
+
+    fn test_update_callback(&mut self) {
+        log_str("test_update_callback called");
     }
 }

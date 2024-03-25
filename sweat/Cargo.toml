@@ -20,3 +20,4 @@ sweat-model = { workspace = true }
 static_assertions = "1.1.0"
 near-sdk = { workspace = true }
 near-contract-standards = { workspace = true }
+near-self-update-proc = { workspace = true }
