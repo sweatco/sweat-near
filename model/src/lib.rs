@@ -14,6 +14,13 @@ pub struct SweatContract<'a> {
     pub contract: &'a near_workspaces::Contract,
 }
 
+#[cfg(feature = "integration-api")]
+impl near_self_update::HasContract for SweatContract<'_> {
+    fn contract(&self) -> &near_workspaces::Contract {
+        self.contract
+    }
+}
+
 #[make_integration_version]
 pub trait SweatApi {
     fn new(postfix: Option<String>) -> Self;
@@ -98,6 +105,7 @@ pub trait StorageManagement {
 #[make_integration_version]
 pub trait IntegrationTestMethods {
     fn calculate_payout_with_fee_for_batch(&self, batch_size: u32, claim_amount: u32) -> (U128, U128);
+    fn test_update_callback(&mut self);
 }
 
 pub struct Payout {

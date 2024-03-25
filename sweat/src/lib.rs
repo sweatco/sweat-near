@@ -9,6 +9,7 @@ use near_sdk::{
     json_types::{U128, U64},
     near, near_bindgen, require, AccountId, PanicOnDefault,
 };
+use near_self_update_proc::SelfUpdate;
 use sweat_model::{Payout, SweatApi};
 
 mod core;
@@ -18,6 +19,8 @@ mod math;
 
 #[near(contract_state)]
 #[derive(PanicOnDefault)]
+#[near_bindgen]
+#[derive(BorshSerialize, BorshDeserialize, PanicOnDefault, SelfUpdate)]
 pub struct Contract {
     oracles: UnorderedSet<AccountId>,
     token: FungibleToken,
@@ -34,6 +37,7 @@ impl SweatApi for Contract {
             steps_since_tge: U64::from(0),
         }
     }
+
     fn add_oracle(&mut self, account_id: &AccountId) {
         require!(
             env::predecessor_account_id() == env::current_account_id(),
@@ -154,6 +158,13 @@ impl Contract {
 
         (payout.amount_for_user, payout.fee)
     }
+
+    fn assert_update(&self) {
+        require!(
+            self.oracles.contains(&env::predecessor_account_id()),
+            "Unauthorized access! Only oracle can call that!"
+        );
+    }
 }
 
 /// Taken from contract standards but modified to default if account isn't initialized
@@ -192,9 +203,12 @@ impl FungibleTokenMetadataProvider for Contract {
 mod tests {
     use std::str::FromStr;
 
+    use std::fs;
+
     use near_contract_standards::fungible_token::core::FungibleTokenCore;
     use near_sdk::{
         json_types::{U128, U64},
+        near_bindgen,
         test_utils::VMContextBuilder,
         testing_env, AccountId, NearToken,
     };
@@ -417,5 +431,48 @@ mod tests {
         assert!((0.0 - token.token.ft_balance_of(user1()).0 as f64 / 1e+18).abs() < EPS);
 
         assert!((9.499_999_991_723_028 * 2.0 - token.token.ft_balance_of(user2()).0 as f64 / 1e+18).abs() < EPS);
+    }
+
+    use crate::ContractExt;
+    #[near_bindgen]
+    impl Contract {
+        pub fn after_test_update() {
+            dbg!("A");
+        }
+
+        #[payable]
+        pub fn update_pidvin(&mut self, code: Vec<u8>, callback: Option<String>) -> near_sdk::Promise {
+            self.assert_update();
+            near_sdk::assert_one_yocto();
+
+            let deploy = near_sdk::Promise::new(near_sdk::env::current_account_id()).deploy_contract(code);
+
+            let Some(callback) = callback else {
+                return deploy.as_return();
+            };
+
+            deploy
+                .function_call(callback, vec![], 0, near_sdk::Gas(200_000_000_000_000))
+                .as_return()
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = r#"Unauthorized access! Only oracle can call that!"#)]
+    fn self_update_without_access() {
+        testing_env!(get_context(sweat_the_token(), sweat_the_token()).build());
+        let mut token = Contract::new(Some(".u.sweat".to_string()));
+        token.add_oracle(&sweat_oracle());
+        token.update_pidvin(vec![], None);
+    }
+
+    #[test]
+    fn self_update() {
+        testing_env!(get_context(sweat_the_token(), sweat_the_token()).build());
+        let mut token = Contract::new(Some(".u.sweat".to_string()));
+        token.add_oracle(&sweat_oracle());
+        testing_env!(get_context(sweat_the_token(), sweat_oracle()).build());
+        let wasm = fs::read("../res/sweat.wasm").unwrap();
+        token.update_pidvin(wasm, None);
     }
 }
