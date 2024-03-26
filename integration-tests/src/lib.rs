@@ -14,6 +14,7 @@ mod measure;
 mod mint;
 mod prepare;
 mod transfer;
+mod update;
 
 #[tokio::test]
 async fn happy_flow() -> anyhow::Result<()> {
