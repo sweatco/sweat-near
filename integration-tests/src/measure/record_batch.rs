@@ -1,10 +1,7 @@
 #![cfg(test)]
 
-use std::future::IntoFuture;
-
 use anyhow::Result;
 use near_workspaces::types::Gas;
-use nitka::measure::outcome_storage::OutcomeStorage;
 use sweat_model::SweatApiIntegration;
 
 use crate::{prepare::IntegrationContext, prepare_contract};
@@ -24,15 +21,13 @@ async fn measure_record_batch() -> Result<Gas> {
 
     let oracle = context.oracle().await?;
 
-    let (gas, _) = OutcomeStorage::measure_total(
-        &oracle,
-        context
-            .ft_contract()
-            .record_batch(Default::default())
-            .with_user(&oracle)
-            .into_future(),
-    )
-    .await?;
+    let gas = context
+        .ft_contract()
+        .record_batch(Default::default())
+        .with_user(&oracle)
+        .result()
+        .await?
+        .total_gas_burnt;
 
     Ok(gas)
 }

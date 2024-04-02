@@ -1,14 +1,14 @@
 use near_contract_standards::fungible_token::events::FtMint;
 use near_sdk::{
     env, env::panic_str, ext_contract, is_promise_success, json_types::U128, near_bindgen, require, serde_json::json,
-    AccountId, Gas, Promise, PromiseOrValue,
+    AccountId, Gas, NearToken, Promise, PromiseOrValue,
 };
 use sweat_model::SweatDefer;
 
 use crate::{internal_deposit, Contract, ContractExt};
 
-const GAS_FOR_DEFER_CALLBACK: Gas = Gas(5 * Gas::ONE_TERA.0);
-const GAS_FOR_DEFER: Gas = Gas(30 * Gas::ONE_TERA.0);
+const GAS_FOR_DEFER_CALLBACK: Gas = Gas::from_tgas(5);
+const GAS_FOR_DEFER: Gas = Gas::from_tgas(30);
 
 #[near_bindgen]
 impl SweatDefer for Contract {
@@ -40,16 +40,15 @@ impl SweatDefer for Contract {
             "amounts": accounts_tokens,
         });
 
-        let record_batch_for_hold_gas = Gas(env::prepaid_gas()
-            .0
-            .checked_sub(GAS_FOR_DEFER.0)
-            .unwrap_or_else(|| panic_str("Prepaid gas overflow")));
+        let record_batch_for_hold_gas = env::prepaid_gas()
+            .checked_sub(GAS_FOR_DEFER)
+            .unwrap_or_else(|| panic_str("Prepaid gas overflow"));
 
         Promise::new(holding_account_id.clone())
             .function_call(
                 "record_batch_for_hold".to_string(),
                 hold_arguments.to_string().into_bytes(),
-                0,
+                NearToken::from_yoctonear(0),
                 record_batch_for_hold_gas,
             )
             .then(
@@ -84,14 +83,14 @@ impl FungibleTokenTransferCallback for Contract {
         internal_deposit(&mut self.token, &fee_account_id, fee.0);
         events.push(FtMint {
             owner_id: &fee_account_id,
-            amount: &fee,
+            amount: fee,
             memo: None,
         });
 
         internal_deposit(&mut self.token, &receiver_id, amount.0);
         events.push(FtMint {
             owner_id: &receiver_id,
-            amount: &amount,
+            amount,
             memo: None,
         });
 

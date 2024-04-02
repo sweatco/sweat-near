@@ -1,9 +1,6 @@
 #![allow(clippy::excessive_precision, clippy::unreadable_literal)]
 
-#[allow(dead_code)]
-const fn assert_lookup_lengths() {
-    const_assert_eq!(KS.len(), BS.len());
-}
+const TEST_DATA_LEN: usize = 400;
 
 #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 pub fn formula(steps_since_tge: f64, steps: f64) -> u128 {
@@ -22,6 +19,7 @@ pub fn area_under_line(k: f64, b: f64, x_start: f64, x_end: f64) -> f64 {
 
     square_area + triangle_area
 }
+
 pub fn exp_decay(steps_from_tge: f64, steps_to_exchange: f64) -> f64 {
     ((K * (steps_from_tge + steps_to_exchange) + 1000.).ln() - (K * steps_from_tge + 1000.).ln()) / K
 }
@@ -29,7 +27,7 @@ pub fn exp_decay(steps_from_tge: f64, steps_to_exchange: f64) -> f64 {
 pub const K: f64 = 0.00000000084;
 
 // one line per trillion, y = KS[i] * x + BS[i]
-pub const KS: [f64; 400] = [
+pub const KS: [f64; TEST_DATA_LEN] = [
     -4.6195652173913043793e-16,
     -1.6864049318624269812e-16,
     -8.8152985074626865086e-17,
@@ -431,7 +429,8 @@ pub const KS: [f64; 400] = [
     -7.377496091878789765e-21,
     2.2332872434632680135e-20,
 ];
-pub const BS: [f64; 400] = [
+
+pub const BS: [f64; TEST_DATA_LEN] = [
     0.001,
     0.0007066839714471122602,
     0.0005457089552238805941,
