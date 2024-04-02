@@ -5,7 +5,7 @@ use near_contract_standards::storage_management::{StorageBalance, StorageBalance
 use near_sdk::AccountId;
 use near_sdk::{
     json_types::{U128, U64},
-    PromiseOrValue,
+    NearToken, PromiseOrValue,
 };
 #[cfg(feature = "integration-api")]
 use nitka::AccountId;
@@ -73,7 +73,7 @@ pub trait StorageManagement {
     /// function-call access-key call (UX wallet security)
     ///
     /// Returns the StorageBalance structure showing updated balances.
-    fn storage_withdraw(&mut self, amount: Option<U128>) -> StorageBalance;
+    fn storage_withdraw(&mut self, amount: Option<NearToken>) -> StorageBalance;
 
     /// Unregisters the predecessor account and returns the storage NEAR deposit back.
     ///
