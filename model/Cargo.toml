@@ -10,8 +10,6 @@ integration-api = ["dep:nitka", "dep:near-workspaces"]
 release-api = []
 
 [dependencies]
-anyhow = { workspace = true }
-async-trait = { workspace = true }
 nitka-proc = { workspace = true }
 
 near-sdk = { workspace = true }

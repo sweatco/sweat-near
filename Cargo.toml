@@ -16,10 +16,10 @@ async-trait = "0.1.74"
 near-units = "0.2.0"
 near-workspaces = "0.10.0"
 
-near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "8c48b26cc48d969c1e5f3162141fe9c824fccecd" }
-near-contract-standards = { git = "https://github.com/sweatco/near-sdk-rs", rev = "8c48b26cc48d969c1e5f3162141fe9c824fccecd" }
+near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "d5e975e3b224b5758745ab46c25d586a8e0db473" }
+near-contract-standards = { git = "https://github.com/sweatco/near-sdk-rs", rev = "d5e975e3b224b5758745ab46c25d586a8e0db473" }
 
-nitka = "0.1.1"
-nitka-proc = "0.1.1"
+nitka = "0.2.2"
+nitka-proc = "0.2.2"
 
 sweat-model = { path = "model" }

@@ -1,26 +1,23 @@
-#[macro_use]
-extern crate static_assertions;
-
 use near_contract_standards::fungible_token::{
     events::{FtBurn, FtMint},
     metadata::{FungibleTokenMetadata, FungibleTokenMetadataProvider},
-    FungibleToken,
+    Balance, FungibleToken,
 };
 use near_sdk::{
-    borsh::{self, BorshDeserialize, BorshSerialize},
     collections::UnorderedSet,
     env,
     json_types::{U128, U64},
-    near_bindgen, require, AccountId, Balance, PanicOnDefault, PromiseOrValue,
+    near, near_bindgen, require, AccountId, PanicOnDefault,
 };
 use sweat_model::{Payout, SweatApi};
 
+mod core;
 mod defer;
 mod integration;
 mod math;
 
-#[near_bindgen]
-#[derive(BorshSerialize, BorshDeserialize, PanicOnDefault)]
+#[near(contract_state)]
+#[derive(PanicOnDefault)]
 pub struct Contract {
     oracles: UnorderedSet<AccountId>,
     token: FungibleToken,
@@ -67,7 +64,7 @@ impl SweatApi for Contract {
         internal_deposit(&mut self.token, account_id, amount.0);
         FtMint {
             owner_id: account_id,
-            amount: &amount,
+            amount,
             memo: None,
         }
         .emit();
@@ -79,13 +76,13 @@ impl SweatApi for Contract {
             "Unauthorized access! Only token owner can do TGE!"
         );
         let mut events = Vec::with_capacity(batch.len());
-        for (account_id, steps_count) in &batch {
+        for (owner_id, steps_count) in &batch {
             // let steps_count = steps_count.0;
-            internal_deposit(&mut self.token, account_id, steps_count.0);
+            internal_deposit(&mut self.token, owner_id, steps_count.0);
 
             let event = FtMint {
-                owner_id: account_id,
-                amount: steps_count,
+                owner_id,
+                amount: *steps_count,
                 memo: None,
             };
             events.push(event);
@@ -95,7 +92,7 @@ impl SweatApi for Contract {
         }
     }
 
-    fn burn(&mut self, amount: &U128) {
+    fn burn(&mut self, amount: U128) {
         self.token.internal_withdraw(&env::predecessor_account_id(), amount.0);
         FtBurn {
             amount,
@@ -129,7 +126,7 @@ impl SweatApi for Contract {
         for i in 0..steps_batch.len() {
             events.push(FtMint {
                 owner_id: &steps_batch[i].0,
-                amount: &sweats[i],
+                amount: sweats[i],
                 memo: None,
             });
         }
@@ -137,7 +134,7 @@ impl SweatApi for Contract {
         internal_deposit(&mut self.token, &env::predecessor_account_id(), oracle_fee.0);
         let oracle_event = FtMint {
             owner_id: &env::predecessor_account_id(),
-            amount: &oracle_fee,
+            amount: oracle_fee,
             memo: None,
         };
         events.push(oracle_event);
@@ -158,9 +155,6 @@ impl Contract {
         (payout.amount_for_user, payout.fee)
     }
 }
-
-near_contract_standards::impl_fungible_token_core!(Contract, token);
-near_contract_standards::impl_fungible_token_storage!(Contract, token);
 
 /// Taken from contract standards but modified to default if account isn't initialized
 /// rather than panicking:
@@ -196,11 +190,13 @@ impl FungibleTokenMetadataProvider for Contract {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use near_contract_standards::fungible_token::core::FungibleTokenCore;
     use near_sdk::{
         json_types::{U128, U64},
         test_utils::VMContextBuilder,
-        testing_env, AccountId,
+        testing_env, AccountId, NearToken,
     };
     use sweat_model::SweatApi;
 
@@ -209,16 +205,19 @@ mod tests {
     const EPS: f64 = 0.00001;
 
     fn sweat_the_token() -> AccountId {
-        AccountId::new_unchecked("sweat_the_token".to_string())
+        AccountId::from_str("sweat_the_token").unwrap()
     }
+
     fn sweat_oracle() -> AccountId {
-        AccountId::new_unchecked("sweat_the_oracle".to_string())
+        AccountId::from_str("sweat_the_oracle").unwrap()
     }
+
     fn user1() -> AccountId {
-        AccountId::new_unchecked("sweat_user1".to_string())
+        AccountId::from_str("sweat_user1").unwrap()
     }
+
     fn user2() -> AccountId {
-        AccountId::new_unchecked("sweat_user2".to_string())
+        AccountId::from_str("sweat_user2").unwrap()
     }
 
     fn get_context(owner: AccountId, sender: AccountId) -> VMContextBuilder {
@@ -227,7 +226,7 @@ mod tests {
             .current_account_id(owner.clone())
             .signer_account_id(sender.clone())
             .predecessor_account_id(sender)
-            .attached_deposit(1);
+            .attached_deposit(NearToken::from_yoctonear(1));
         builder
     }
 
@@ -380,7 +379,7 @@ mod tests {
         token.add_oracle(&sweat_oracle());
         token.tge_mint(&user1(), U128(9499999991723028480));
         testing_env!(get_context(sweat_the_token(), user1()).build());
-        token.burn(&U128(9499999991723028480));
+        token.burn(U128(9499999991723028480));
         assert!((0.0 - token.token.ft_balance_of(user1()).0 as f64 / 1e+18).abs() < EPS);
     }
 

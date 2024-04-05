@@ -5,7 +5,7 @@ use near_contract_standards::storage_management::{StorageBalance, StorageBalance
 use near_sdk::AccountId;
 use near_sdk::{
     json_types::{U128, U64},
-    PromiseOrValue,
+    NearToken, PromiseOrValue,
 };
 #[cfg(feature = "integration-api")]
 use nitka::AccountId;
@@ -24,7 +24,7 @@ pub trait SweatApi {
     fn get_oracles(&self) -> Vec<AccountId>;
     fn tge_mint(&mut self, account_id: &AccountId, amount: U128);
     fn tge_mint_batch(&mut self, batch: Vec<(AccountId, U128)>);
-    fn burn(&mut self, amount: &U128);
+    fn burn(&mut self, amount: U128);
     fn get_steps_since_tge(&self) -> U64;
     fn record_batch(&mut self, steps_batch: Vec<(AccountId, u32)>);
     fn formula(&self, steps_since_tge: U64, steps: u32) -> U128;
@@ -56,7 +56,7 @@ pub trait FungibleTokenCore {
 pub trait StorageManagement {
     // if `registration_only=true` MUST refund above the minimum balance if the account didn't exist and
     //     refund full deposit if the account exists.
-    #[deposit_yocto = near_sdk::env::storage_byte_cost() * 125]
+    #[deposit_yocto = near_sdk::env::storage_byte_cost().checked_mul(125).unwrap().as_yoctonear()]
     fn storage_deposit(&mut self, account_id: Option<AccountId>, registration_only: Option<bool>) -> StorageBalance;
 
     /// Withdraw specified amount of available Ⓝ for predecessor account.
@@ -73,7 +73,7 @@ pub trait StorageManagement {
     /// function-call access-key call (UX wallet security)
     ///
     /// Returns the StorageBalance structure showing updated balances.
-    fn storage_withdraw(&mut self, amount: Option<U128>) -> StorageBalance;
+    fn storage_withdraw(&mut self, amount: Option<NearToken>) -> StorageBalance;
 
     /// Unregisters the predecessor account and returns the storage NEAR deposit back.
     ///
