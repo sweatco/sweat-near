@@ -11,7 +11,6 @@ resolver = "2"
 [workspace.dependencies]
 tokio = "1.28.0"
 anyhow = "1.0.75"
-async-trait = "0.1.74"
 
 near-units = "0.2.0"
 near-workspaces = "0.10.0"
@@ -19,7 +18,7 @@ near-workspaces = "0.10.0"
 near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "d5e975e3b224b5758745ab46c25d586a8e0db473" }
 near-contract-standards = { git = "https://github.com/sweatco/near-sdk-rs", rev = "d5e975e3b224b5758745ab46c25d586a8e0db473" }
 
-nitka = "0.2.2"
-nitka-proc = "0.2.2"
+nitka = "0.3.0"
+nitka-proc = "0.3.0"
 
 sweat-model = { path = "model" }

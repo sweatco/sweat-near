@@ -1,5 +1,7 @@
-use near_sdk::json_types::{U128, U64};
-use nitka::misc::ToNear;
+use nitka::{
+    misc::ToNear,
+    near_sdk::json_types::{U128, U64},
+};
 use sweat_model::{FungibleTokenCoreIntegration, Payout, SweatApiIntegration};
 
 use crate::prepare::{prepare_contract, IntegrationContext};

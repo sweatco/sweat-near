@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use near_sdk::AccountId;
+use nitka::near_sdk::AccountId;
 use sweat_model::SweatContract;
 
 pub(crate) trait ContractAccount {

@@ -1,8 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use near_sdk::serde_json::json;
 use near_workspaces::{Account, Contract};
-use nitka::misc::ToNear;
+use nitka::{misc::ToNear, near_sdk::serde_json::json};
 use sweat_model::{StorageManagementIntegration, SweatApiIntegration, SweatContract};
 
 const CLAIM_CONTRACT: &str = "sweat_claim";
