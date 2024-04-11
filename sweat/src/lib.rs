@@ -18,9 +18,7 @@ mod integration;
 mod math;
 
 #[near(contract_state)]
-#[derive(PanicOnDefault)]
-#[near_bindgen]
-#[derive(BorshSerialize, BorshDeserialize, PanicOnDefault, SelfUpdate)]
+#[derive(PanicOnDefault, SelfUpdate)]
 pub struct Contract {
     oracles: UnorderedSet<AccountId>,
     token: FungibleToken,
@@ -159,7 +157,7 @@ impl Contract {
         (payout.amount_for_user, payout.fee)
     }
 
-    fn assert_update(&self) {
+    fn assert_account_can_update(&self) {
         require!(
             self.oracles.contains(&env::predecessor_account_id()),
             "Unauthorized access! Only oracle can call that!"
@@ -201,9 +199,7 @@ impl FungibleTokenMetadataProvider for Contract {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
-    use std::fs;
+    use std::{fs, str::FromStr};
 
     use near_contract_standards::fungible_token::core::FungibleTokenCore;
     use near_sdk::{
