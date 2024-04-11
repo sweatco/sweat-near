@@ -1,14 +1,12 @@
 #![allow(clippy::new_ret_no_self, clippy::wrong_self_convention)]
 
 use near_contract_standards::storage_management::{StorageBalance, StorageBalanceBounds};
-#[cfg(feature = "release-api")]
-use near_sdk::AccountId;
 use near_sdk::{
     json_types::{U128, U64},
-    NearToken, PromiseOrValue,
+    AccountId, NearToken,
 };
 #[cfg(feature = "integration-api")]
-use nitka::AccountId;
+use nitka::near_sdk;
 use nitka_proc::make_integration_version;
 
 #[cfg(feature = "integration-api")]
@@ -32,7 +30,11 @@ pub trait SweatApi {
 
 #[make_integration_version]
 pub trait SweatDefer {
-    fn defer_batch(&mut self, steps_batch: Vec<(AccountId, u32)>, holding_account_id: AccountId) -> PromiseOrValue<()>;
+    fn defer_batch(
+        &mut self,
+        steps_batch: Vec<(AccountId, u32)>,
+        holding_account_id: AccountId,
+    ) -> ::near_sdk::PromiseOrValue<()>;
 }
 
 /// Copy of near_sdk trait to use in integration tests
@@ -46,7 +48,7 @@ pub trait FungibleTokenCore {
         amount: U128,
         memo: Option<String>,
         msg: String,
-    ) -> PromiseOrValue<U128>;
+    ) -> ::near_sdk::PromiseOrValue<U128>;
     fn ft_total_supply(&self) -> U128;
     fn ft_balance_of(&self, account_id: AccountId) -> U128;
 }
@@ -56,7 +58,7 @@ pub trait FungibleTokenCore {
 pub trait StorageManagement {
     // if `registration_only=true` MUST refund above the minimum balance if the account didn't exist and
     //     refund full deposit if the account exists.
-    #[deposit_yocto = near_sdk::env::storage_byte_cost().checked_mul(125).unwrap().as_yoctonear()]
+    #[deposit_yocto = ::near_sdk::env::storage_byte_cost().checked_mul(125).unwrap().as_yoctonear()]
     fn storage_deposit(&mut self, account_id: Option<AccountId>, registration_only: Option<bool>) -> StorageBalance;
 
     /// Withdraw specified amount of available Ⓝ for predecessor account.

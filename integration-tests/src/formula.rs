@@ -1,5 +1,5 @@
 use anyhow::Result;
-use near_sdk::json_types::U64;
+use nitka::near_sdk::json_types::U64;
 use sweat_model::SweatApiIntegration;
 
 use crate::prepare::{prepare_contract, IntegrationContext};
