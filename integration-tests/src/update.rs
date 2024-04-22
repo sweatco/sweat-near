@@ -17,14 +17,14 @@ async fn update() -> Result<()> {
         .expect_error("Unauthorized access! Only oracle can call that!")
         .await?;
 
-    let big_version = fs::read("../res_test/sweat_big_version.wasm")?;
-    let small_version = fs::read("../res/sweat.wasm")?;
+    let new_version = fs::read("../res_test/sweat_new_version.wasm")?;
+    let old_version = fs::read("../res/sweat.wasm")?;
 
     let oracle = context.oracle().await?;
 
     context
         .ft_contract()
-        .update_contract(small_version, "test_update_callback".to_string().into())
+        .update_contract(old_version, "test_update_callback".to_string().into())
         .with_user(&oracle)
         .expect_log("test_update_callback called")
         .await?;
@@ -33,14 +33,14 @@ async fn update() -> Result<()> {
 
     context
         .ft_contract()
-        .update_contract(big_version.clone(), "aaaaaa".to_string().into())
+        .update_contract(new_version.clone(), "non_existing_method".to_string().into())
         .with_user(&oracle)
         .expect_error("MethodResolveError(MethodNotFound)")
         .await?;
 
     context
         .ft_contract()
-        .update_contract(big_version.clone(), None)
+        .update_contract(new_version.clone(), None)
         .with_user(&oracle)
         .dont_expect_log("test_update_callback called")
         .await?;
