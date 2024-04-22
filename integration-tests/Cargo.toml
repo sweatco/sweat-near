@@ -24,3 +24,4 @@ async-trait = "0.1.77"
 
 sweat-model = { workspace = true, features = ["integration-api"] }
 nitka = { workspace = true }
+near-self-update = { workspace = true }

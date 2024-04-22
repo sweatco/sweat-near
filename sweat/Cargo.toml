@@ -19,3 +19,4 @@ sweat-model = { workspace = true }
 
 near-sdk = { workspace = true, features = ["unit-testing"] }
 near-contract-standards = { workspace = true }
+near-self-update-proc = { workspace = true }

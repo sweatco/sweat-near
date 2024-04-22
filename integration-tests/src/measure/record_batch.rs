@@ -2,16 +2,17 @@
 
 use anyhow::Result;
 use near_workspaces::types::Gas;
+use nitka::measure::utils::pretty_gas_string;
 use sweat_model::SweatApiIntegration;
 
 use crate::{prepare::IntegrationContext, prepare_contract};
 
 #[ignore]
 #[tokio::test]
-async fn single_record_batch() -> anyhow::Result<()> {
+async fn single_record_batch() -> Result<()> {
     let gas = measure_record_batch().await?;
 
-    dbg!(&gas);
+    println!("{}", pretty_gas_string(gas));
 
     Ok(())
 }
