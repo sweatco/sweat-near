@@ -18,8 +18,8 @@ near-workspaces = "0.10.0"
 near-sdk = { git = "https://github.com/sweatco/near-sdk-rs", rev = "d5e975e3b224b5758745ab46c25d586a8e0db473" }
 near-contract-standards = { git = "https://github.com/sweatco/near-sdk-rs", rev = "d5e975e3b224b5758745ab46c25d586a8e0db473" }
 
-nitka = "0.3.0"
-nitka-proc = "0.3.0"
+nitka = "0.4.0"
+nitka-proc = "0.4.0"
 
 near-self-update = "0.1.2"
 near-self-update-proc = "0.1.2"
