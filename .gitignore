@@ -3,3 +3,5 @@ target/
 neardev/
 
 .DS_Store
+
+/res/sweat_commit.wasm
