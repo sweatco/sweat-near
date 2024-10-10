@@ -21,7 +21,7 @@ near-contract-standards = { git = "https://github.com/sweatco/near-sdk-rs", rev 
 nitka = "=0.4.1"
 nitka-proc = "=0.4.0"
 
-near-self-update = "0.1.2"
-near-self-update-proc = "0.1.2"
+near-self-update = "0.2.0"
+near-self-update-proc = "0.2.0"
 
 sweat-model = { path = "model" }

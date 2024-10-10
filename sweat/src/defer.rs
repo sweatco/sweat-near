@@ -65,6 +65,7 @@ impl SweatDefer for Contract {
     }
 }
 
+#[allow(dead_code)] // False positive since rust 1.78. It is used from `ext_contract` macro.
 #[ext_contract(ext_ft_transfer_callback)]
 pub trait FungibleTokenTransferCallback {
     fn on_record(&mut self, receiver_id: AccountId, amount: U128, fee_account_id: AccountId, fee: U128);
